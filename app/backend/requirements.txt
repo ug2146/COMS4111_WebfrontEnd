@@ -1,0 +1,12 @@
+flask
+sqlalchemy
+flask_jwt_extended
+flask_cors
+mysqlclient
+psycopg2
+
+# Debian/Ubuntu
+## sudo apt-get install libmysqlclient-dev
+
+# OSX
+## brew install mysql
