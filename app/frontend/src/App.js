@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from './logo.png';
+import logo from './nyc-logo.png';
 import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { register, login, logout } from "./services/auth.service";

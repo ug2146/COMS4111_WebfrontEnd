@@ -30,7 +30,7 @@ function Register_staff(props) {
 
     return (
       <div>
-        <h2>Register Staff</h2>
+        <h2>Register as a Staff</h2>
           <form className="register">
             <input onChange={handleChange} 
                   type="email"

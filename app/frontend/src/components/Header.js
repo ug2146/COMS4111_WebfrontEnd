@@ -1,4 +1,4 @@
-import logo from '../logo.png';
+import logo from '../nyc-logo.png';
 import {logout} from "./../services/auth.service";
 
 function Header(props) {

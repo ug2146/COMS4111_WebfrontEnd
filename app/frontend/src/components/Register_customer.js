@@ -30,7 +30,7 @@ function Register_customer(props) {
 
     return (
       <div>
-        <h2>Register as a customer</h2>
+        <h2>Register as a Customer</h2>
           <form className="register">
             <input onChange={handleChange} 
                   type="email"
