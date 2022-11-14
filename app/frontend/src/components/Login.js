@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from "axios";
 import {register, login, logout} from "../services/auth.service";
 
-function Login({setToken, setEmail}) {
+function Login({setToken, setEmail, setTick}) {
 
     const [loginForm, setloginForm] = useState({
       email: "",
@@ -30,6 +30,7 @@ function Login({setToken, setEmail}) {
     
     function handleChange_tick(event) { 
       const {value, name} = event.target
+      setTick(!loginForm.tick);
       setloginForm(prevNote => ({
           ...prevNote, tick: !loginForm.tick})
       )}

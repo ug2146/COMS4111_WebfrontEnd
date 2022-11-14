@@ -22,25 +22,6 @@ DATABASEURI = "postgresql://ug2146:9466@34.75.94.195/proj1part2"
 #
 engine = create_engine(DATABASEURI)
 
-############
-# @app.route('/api/dishes/top', methods=['GET'])
-# @cross_origin()
-# def top_dishes():
-#   #todo add restaurant id here
-#   cursor = g.conn.execute("SELECT D.dish_category"  
-#   " FROM Adds A NATURAL JOIN Dishes D"
-#   " GROUP BY D.dish_category"
-#   " ORDER BY COUNT(*) DESC"
-#   " LIMIT 5")
-#   names = []
-#   for result in cursor:
-#     names.append(result['dish_category'])
-#   cursor.close()
-#   print(names)
-#   return jsonify(names)
-############
-
-
 
 @app.before_request
 def before_request():
@@ -105,15 +86,25 @@ def signup_staff():
 def login():
   email = request.json.get("email", None)
   password = request.json.get("password", None)
-  cmd = "SELECT COUNT(*) FROM Users WHERE EmailId = \"" + email + "\""
+  tick = request.json.get("tick", None)
+  if tick == "true":
+    cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\'"
+  else:
+    cmd = "SELECT COUNT(*) FROM Customers C WHERE C.email_id = \'" + email + "\'"
+  
   cursor = g.conn.execute(cmd)
   user = cursor.fetchone()[0]
   if user == 0:
     return jsonify({"msg": "User not registered"}), 401
   
-  cmd = "SELECT COUNT(*) FROM Users WHERE EmailId = \"" + email + "\" AND Password = \"" + password + "\""
+  if tick == "true":
+    cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\' AND S.user_password = \'" + password + "\'"
+  else:
+    cmd = "SELECT COUNT(*) FROM Customers C WHERE C.email_id = \'" + email + "\' AND C.user_password = \'" + password + "\'"
+  
   cursor = g.conn.execute(cmd)
   user = cursor.fetchone()[0]
+  
   if user == 0:
     return jsonify({"msg": "Wrong password"}), 401
 
@@ -133,59 +124,46 @@ def logout():
 @cross_origin()
 def top_restaurants():
   #todo add restaurant id here
-  cursor = g.conn.execute("SELECT RestaurantName"  
-  " FROM Restaurants r"
-  " WHERE r.LicenseNo IN ("
-      "(SELECT rr.LicenseNo"
-      " FROM RestaurantReview rr NATURAL JOIN Restaurants"
-      " GROUP BY rr.LicenseNo"
-      " HAVING AVG((Ambience + Crowd + Service) / 3) > 4)"
-      " UNION"
-      " (SELECT v.LicenseNo"
-      " FROM Views v"
-      " WHERE Favorite = 1"
-      " GROUP BY v.LicenseNo"
-      " HAVING COUNT(*) > 110))"
+  cursor = g.conn.execute("SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating"  
+  " FROM Restaurants_Fetches rf, rates r, ratings ra"
+  " WHERE rf.license_no = r.license_no"
+      " AND r.rating_id = ra.rating_id"
+      " GROUP BY rf.license_no, rf.restaurant_name"
+      " HAVING (AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0) >= 4)"
+      " ORDER BY Average_Rating DESC"
       )
   names = []
   for result in cursor:
-    names.append(result['RestaurantName'])
+    names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
   cursor.close()
   return jsonify(names)
 
 @app.route('/api/users/top', methods=['GET'])
 @cross_origin()
 def top_users():
-  cursor = g.conn.execute("SELECT DISTINCT Name"
-    " FROM Users"
-    " WHERE EmailId IN ("
-      " SELECT EmailId"
-      " FROM RestaurantReview"
-      " GROUP BY EmailId"
-      " HAVING COUNT(*) >= 2"
-      " UNION"
-      " SELECT EmailId"
-      " FROM DishReview"
-      " GROUP BY EmailId"
-      " HAVING COUNT(*) >= 2"
-      ")"
+  cursor = g.conn.execute("SELECT username"
+    " FROM customers c, rates r"
+    " WHERE c.email_id= r.email_id"
+      " GROUP BY c.email_id, username"
+      " HAVING COUNT(*) >= 1"
+      " Limit 10"
       )
   names = []
   for result in cursor:
-    names.append(result['Name'])
+    names.append(result['username'])
   cursor.close()
   return jsonify(names)
 
 @app.route('/api/users/reviews/<email>', methods=['GET'])
 @cross_origin()
 def user_reviews(email):
-  cursor = g.conn.execute("SELECT ReviewId, RestaurantName, WrittenReview"
-    " FROM Restaurants NATURAL JOIN RestaurantReview"
-    " WHERE RestaurantReview.EmailId = \"" + email + "\""
+  cursor = g.conn.execute("SELECT RF.restaurant_name, round((RA.ambience + RA.crowd + RA.customer_service + RA.value_for_money + RA.taste + RA.cooked)/6.0, 2) AS average_rating, RA.overall_written_review"
+    " FROM Customers C, Rates R, Ratings RA, Restaurants_Fetches RF"
+    " WHERE C.email_id = R.email_id  AND R.rating_id = RA.rating_id AND RF.license_no = R.license_no AND C.email_id = \'" + email + "\'"
       )
   names = []
   for result in cursor:
-    names.append({"reviewId": result['ReviewId'], "restaurantName": result['RestaurantName'], "writtenReview": result['WrittenReview']})
+    names.append({"reviewId": str(result[1]), "restaurantName": result['restaurant_name'], "writtenReview": result['overall_written_review']})
   cursor.close()
   return jsonify(names)
 
@@ -200,7 +178,7 @@ def search(searchKey):
   if searchKey == "0" or searchKey is None:
     cmd = "SELECT RestaurantName FROM Restaurants"
   else:
-    cmd = "SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE \"%%" + searchKey + "%%\""
+    cmd = "SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE \'%%" + searchKey + "%%\'"
   print(cmd)
   cursor = g.conn.execute(cmd)
   print(cursor)
@@ -220,7 +198,7 @@ def addReview():
   restaurant = request.json.get("restaurant", None)
   review = request.json.get("review", None)
   reviewId = str(uuid4())[:20]
-  cmd = "SELECT LicenseNo FROM Restaurants WHERE RestaurantName = \"" + restaurant + "\""
+  cmd = "SELECT LicenseNo FROM Restaurants WHERE RestaurantName = \'" + restaurant + "\'"
   cursor = g.conn.execute(cmd)
   licenseNo = cursor.fetchone()[0]
   cmd = f"INSERT INTO RestaurantReview (ReviewId, LicenseNo, EmailId, WrittenReview) VALUES ('{reviewId}', '{licenseNo}', '{email}', '{review}')"
@@ -245,7 +223,7 @@ def editReview():
   app.logger.info(reviewId)
   print('reviewId', reviewId)
   writtenReview = request.json.get("writtenReview", None)
-  cmd = "UPDATE RestaurantReview SET WrittenReview = \""+ writtenReview + "\" WHERE ReviewId = \"" + reviewId+ "\""
+  cmd = "UPDATE RestaurantReview SET WrittenReview = \'"+ writtenReview + "\' WHERE ReviewId = \'" + reviewId+ "\'"
   cursor = g.conn.execute(cmd)
   return jsonify("Edited successfully")
 

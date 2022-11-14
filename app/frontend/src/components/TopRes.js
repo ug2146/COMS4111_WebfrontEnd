@@ -17,9 +17,12 @@ function TopRes() {
                     {restaurants.map((restaurant) => (
                         <div>
                             <Card style={{ width: '18rem' }}>
-                                <Card.Title>{restaurant}</Card.Title>
+                                <Card.Title>{restaurant.restaurantName}</Card.Title>
                                 <Card.Text>
-                                    {restaurant}
+                                    {restaurant.restaurantName}
+                                    <br>
+                                    </br>
+                                    Average rating: {restaurant.avg_rating}
                                 </Card.Text>
                                 <Button variant="primary">Go somewhere</Button>
                             </Card>

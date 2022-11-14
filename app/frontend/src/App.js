@@ -19,6 +19,7 @@ function App() {
   const { token, removeToken, setToken } = useToken();
   const [email, setEmail] = useState("");
   const [restaurants, setRestaurants] = useState();
+  const [tick, setTick] = useState(false);
 
   function handleChange(event) { 
     console.log(event.target.value);
@@ -29,12 +30,13 @@ function App() {
       <Header token={removeToken} />
       {!token && token !== "" && token !== undefined ?
         <div>
-          <Login setToken={setToken} setEmail = {setEmail} />
+          <Login setToken={setToken} setEmail = {setEmail} setTick={setTick}/>
           <Register_customer />
           <Register_staff />
         </div>
-        :
-        <div> Hello man! 
+        : 
+        !tick ?
+        <div> Hello Customer! 
         <ul className="Features">
         <li>
           <Link to="/topRes">Find top Restaurants!</Link>
@@ -49,15 +51,19 @@ function App() {
           <Link to="/search">Search Restaurants</Link><br />
           <input type="text" onChange={handleChange} name="searchKey"  placeholder="Search for a restaurant" />
         </li>
-      </ul>
-      <Routes>
+        </ul>
+        <Routes>
         <Route exact path='/topRes' element={< TopRes />}></Route>
         <Route exact path='/topPep' element={< TopPep />}></Route>
         <Route exact path='/search' element={< Search restaurants={restaurants} email={email} />}></Route>
         <Route exact path='/myrev' element={< MyReviews email={email}/>}></Route>
       </Routes>
-        </div>   
-      }
+        </div>
+        :
+        <div>Hello Staff!
+
+        </div>
+    }
     </div>
   );
 }
