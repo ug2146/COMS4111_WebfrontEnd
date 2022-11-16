@@ -8,12 +8,14 @@ import Header from './components/Header';
 import Login from './components/Login';
 import Register_customer from './components/Register_customer';
 import Register_staff from './components/Register_staff';
+import StaffView from './components/staff/StaffView';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
-import TopPep from './components/TopPep';
-import TopRes from './components/TopRes';
-import Search from './components/Search';
-import MyReviews from './components/MyReviews';
+import TopPep from './components/user/TopPep';
+import TopRes from './components/user/TopRes';
+import Search from './components/user/Search';
+import MyReviews from './components/user/MyReviews';
 import { search } from "./services/fetch.service";
+
 
 function App() {
   const { token, removeToken, setToken } = useToken();
@@ -28,7 +30,7 @@ function App() {
   return (
     <div className="App">
       <Header token={removeToken} />
-      {!token && token !== "" && token !== undefined ?
+      {!token || token === "" && token === undefined ?
         <div>
           <Login setToken={setToken} setEmail = {setEmail} setTick={setTick}/>
           <Register_customer />
@@ -36,7 +38,7 @@ function App() {
         </div>
         : 
         !tick ?
-        <div> Hello Customer! 
+        <div> Hello {email}! 
         <ul className="Features">
         <li>
           <Link to="/topRes">Find top Restaurants!</Link>
@@ -60,8 +62,8 @@ function App() {
       </Routes>
         </div>
         :
-        <div>Hello Staff!
-
+        <div>
+            <StaffView email = {email}/>
         </div>
     }
     </div>

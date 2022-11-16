@@ -78,7 +78,7 @@ def signup_staff():
   print("phoneno: ", staffid)
   print("name: ", name)
   #todo add staff and customer auth
-  g.conn.execute("INSERT INTO Customers (email_id, username, user_password, staff_id) VALUES (%s, %s, %s, %s)", email, name, password, staffid)
+  g.conn.execute("INSERT INTO Staff (email_id, username, user_password, staff_id) VALUES (%s, %s, %s, %s)", email, name, password, staffid)
   return jsonify({"msg": "Staff created successfully"}), 200
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -95,7 +95,7 @@ def login():
   cursor = g.conn.execute(cmd)
   user = cursor.fetchone()[0]
   if user == 0:
-    return jsonify({"msg": "User not registered"}), 401
+    return jsonify({"access_token":""}), 200
   
   if tick == "true":
     cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\' AND S.user_password = \'" + password + "\'"
@@ -106,7 +106,7 @@ def login():
   user = cursor.fetchone()[0]
   
   if user == 0:
-    return jsonify({"msg": "Wrong password"}), 401
+    return jsonify({"access_token":""}), 200
 
   access_token = create_access_token(identity=email)
   response = {"access_token":access_token}
