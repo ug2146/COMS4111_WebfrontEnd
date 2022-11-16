@@ -18,9 +18,9 @@ function TopPep() {
                             <Card style={{ width: '18rem' }}>
                                 <Card.Title>{person}</Card.Title>
                                 <Card.Text>
-                                    {person}
+                                    {/*{person}*/}
                                 </Card.Text>
-                                <Button variant="primary">Go somewhere</Button>
+                                <Button variant="primary">Go to the Reviewer's Page</Button>
                             </Card>
                         </div>
                     ))}

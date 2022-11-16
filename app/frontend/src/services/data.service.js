@@ -11,10 +11,10 @@ const API_URL = "http://localhost:8111/api/reviews/";
 //     return response.json();
 // }
 
-const deleteReview = (reviewId) => {
+const deleteReview = (ratingId) => {
     return axios.delete(API_URL + "delete", {
         data: {
-            reviewId,
+            ratingId,
         },
       }).then((response) => {
         console.log(response);
@@ -22,9 +22,15 @@ const deleteReview = (reviewId) => {
       });
     }
 
-const editReview = (reviewId, writtenReview) => {
+const editReview = (ratingId, ambience, crowd, customer_service, value_for_money, taste, cooked,writtenReview) => {
     return axios.put(API_URL + "edit", {
-        reviewId,
+        ratingId,
+        ambience,
+        crowd,
+        customer_service,
+        value_for_money,
+        taste,
+        cooked,
         writtenReview
         });
     }

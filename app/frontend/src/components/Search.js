@@ -24,11 +24,12 @@ function Search({ restaurants, email }) {
             {restaurantsList && (restaurantsList.map((restaurant) => (
                 <div>
                     <Card style={{ width: '18rem' }}>
-                        <Card.Title>{restaurant}</Card.Title>
+                        <Card.Title>{restaurant.restaurantName}</Card.Title>
                         <Card.Text>
-                            {restaurant}
+                            Average Rating: {restaurant.avg_rating}
                         </Card.Text>
-                        <Button variant="primary" onClick={addRev} name={restaurant}>Add Review
+                        <Button variant="primary">Go to the Restaurant Page</Button>
+                        <Button variant="primary" onClick={addRev} name={restaurant.restaurantName}>Add Review
                             <input
                                 type="text"
                                 onChange={handleChange}

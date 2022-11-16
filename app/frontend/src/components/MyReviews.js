@@ -15,14 +15,14 @@ function MyReviews({email}) {
     };
 
     const delRev = (event) => {
-        const reviewId = event.target.name;
-        console.log('reviewId deleted', reviewId);
-        deleteReview(reviewId);
+        const ratingId = event.target.name;
+        console.log('ratingId deleted', ratingId);
+        deleteReview(ratingId);
     };
 
     const editRev = (event) => {
-        const reviewId = event.target.name;
-        editReview(reviewId, writtenReview);
+        const ratingId = event.target.name;
+        editReview(ratingId, writtenReview);
     };
 
     if (isLoading) {
@@ -36,18 +36,24 @@ function MyReviews({email}) {
                 {reviews.map((review, index) => (
                     <div key={index}>
                         <Card style={{ width: '18rem' }}>
-                            <Card.Title>{review.reviewId}</Card.Title>
+                            <Card.Title>{review.restaurantName}</Card.Title>
                             <Card.Subtitle>
-                                {review.restaurantName}
+                                Average Rating: {review.avgRating}
                             </Card.Subtitle>
                             <Card.Body>
                                 <Card.Text>
-                                {review.writtenReview}
+                                Comment: {review.writtenReview}
                                 </Card.Text>
                             </Card.Body>
-                            <Button variant="primary" name={review.reviewId} onClick={delRev}>Delete Review</Button>
-                            <Button variant="primary" name={review.reviewId} onClick={editRev}>Edit Review
-                                <input type="text" onChange={handleChange} name="writtenReview"  placeholder="Update your review" />
+                            <Button variant="primary" name={review.ratingId} onClick={delRev}>Delete Review</Button>
+                            <Button variant="primary" name={review.ratingId} onClick={editRev}>Edit Review
+                                <input type="text" onChange={handleChange} name="ambience"  placeholder="Ambience 0-5" />
+                                <input type="text" onChange={handleChange} name="crowd"  placeholder="Crowd 0-5" />
+                                <input type="text" onChange={handleChange} name="customer_service"  placeholder="Customer service 0-5" />
+                                <input type="text" onChange={handleChange} name="value_for_money"  placeholder="Value for money 0-5" />
+                                <input type="text" onChange={handleChange} name="taste"  placeholder="Taste 0-5" />
+                                <input type="text" onChange={handleChange} name="cooked"  placeholder="Cooked 0-5" />
+                                <input type="text" onChange={handleChange} name="writtenReview"  placeholder="Written review" />
                             </Button>
                         </Card>
                     </div>

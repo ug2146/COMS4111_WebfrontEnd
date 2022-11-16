@@ -19,12 +19,12 @@ function TopRes() {
                             <Card style={{ width: '18rem' }}>
                                 <Card.Title>{restaurant.restaurantName}</Card.Title>
                                 <Card.Text>
-                                    {restaurant.restaurantName}
+                                    {/*{restaurant.restaurantName}
                                     <br>
-                                    </br>
+                                    </br>*/}
                                     Average rating: {restaurant.avg_rating}
                                 </Card.Text>
-                                <Button variant="primary">Go somewhere</Button>
+                                <Button variant="primary">Go to the Restaurant Page</Button>
                             </Card>
                         </div>
                     ))}

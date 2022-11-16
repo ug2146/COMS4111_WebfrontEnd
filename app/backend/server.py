@@ -157,13 +157,13 @@ def top_users():
 @app.route('/api/users/reviews/<email>', methods=['GET'])
 @cross_origin()
 def user_reviews(email):
-  cursor = g.conn.execute("SELECT RF.restaurant_name, round((RA.ambience + RA.crowd + RA.customer_service + RA.value_for_money + RA.taste + RA.cooked)/6.0, 2) AS average_rating, RA.overall_written_review"
+  cursor = g.conn.execute("SELECT RA.rating_id, RF.restaurant_name, round((RA.ambience + RA.crowd + RA.customer_service + RA.value_for_money + RA.taste + RA.cooked)/6.0, 2) AS average_rating, RA.overall_written_review"
     " FROM Customers C, Rates R, Ratings RA, Restaurants_Fetches RF"
     " WHERE C.email_id = R.email_id  AND R.rating_id = RA.rating_id AND RF.license_no = R.license_no AND C.email_id = \'" + email + "\'"
       )
   names = []
   for result in cursor:
-    names.append({"reviewId": str(result[1]), "restaurantName": result['restaurant_name'], "writtenReview": result['overall_written_review']})
+    names.append({"ratingId": result['rating_id'], "restaurantName": result['restaurant_name'], "avgRating": str(result[2]), "writtenReview": result['overall_written_review']})
   cursor.close()
   return jsonify(names)
 
@@ -176,17 +176,18 @@ def search(searchKey):
   # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
   cmd = ""
   if searchKey == "0" or searchKey is None:
-    cmd = "SELECT RestaurantName FROM Restaurants"
+    cmd = "SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
   else:
-    cmd = "SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE \'%%" + searchKey + "%%\'"
-  print(cmd)
+    cmd = "SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id WHERE rf.area LIKE \'%%" + searchKey + "%%\' GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
+  
+  #print(cmd)
   cursor = g.conn.execute(cmd)
-  print(cursor)
+  #print(cursor)
   for result in cursor:
-    print(result)
-    names.append(result['RestaurantName'])
+    #print(result)
+    names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
   cursor.close()
-  print(names)
+  #print(names)
   return jsonify(names)
 
 @app.route('/api/reviews/add', methods=['POST'])
@@ -219,11 +220,17 @@ def deleteReview():
 def editReview():
   # search by restaurant or dish
   # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
-  reviewId = request.json.get("reviewId", None)
-  app.logger.info(reviewId)
-  print('reviewId', reviewId)
+  ratingId = request.json.get("ratingId", None)
+  app.logger.info(ratingId)
+  print('ratingId', ratingId)
+  ambience = request.json.get("ambience", None)
+  crowd = request.json.get("crowd", None)
+  customer_service = request.json.get("customer_service", None)
+  value_for_money = request.json.get("value_for_money", None)
+  taste = request.json.get("taste", None)
+  cooked = request.json.get("cooked", None)
   writtenReview = request.json.get("writtenReview", None)
-  cmd = "UPDATE RestaurantReview SET WrittenReview = \'"+ writtenReview + "\' WHERE ReviewId = \'" + reviewId+ "\'"
+  cmd = f"UPDATE Ratings SET ambience = {ambience}, crowd = {crowd}, customer_service = {customer_service}, value_for_money = {value_for_money}, taste = {taste}, cooked = {cooked}," + " overall_written_review = \'" + str(writtenReview) + "\' WHERE rating_id = \'" + str(ratingId) + "\'"
   cursor = g.conn.execute(cmd)
   return jsonify("Edited successfully")
 
