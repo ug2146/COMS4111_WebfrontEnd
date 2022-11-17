@@ -13,7 +13,7 @@ import TopPep from './components/TopPep';
 import TopRes from './components/TopRes';
 import Search from './components/Search';
 import MyReviews from './components/MyReviews';
-import { search } from "./services/fetch.service";
+import { search_area, search_res } from "./services/fetch.service";
 
 function App() {
   const { token, removeToken, setToken } = useToken();
@@ -21,10 +21,16 @@ function App() {
   const [restaurants, setRestaurants] = useState();
   const [tick, setTick] = useState(false);
 
-  function handleChange(event) { 
+  function handleChange_area(event) { 
     console.log(event.target.value);
-    search(event.target.value, setRestaurants);
+    search_area(event.target.value, setRestaurants);
   }
+
+  function handleChange_res(event) { 
+    console.log(event.target.value);
+    search_res(event.target.value, setRestaurants);
+  }
+
   return (
     <div className="App">
       <Header token={removeToken} />
@@ -49,7 +55,8 @@ function App() {
         </li>
         <li>
           <Link to="/search">Search Restaurants</Link><br />
-          <input type="text" onChange={handleChange} name="searchKey"  placeholder="Search for a restaurant" />
+          <input type="text" onChange={handleChange_area} name="searchKey"  placeholder="Based on Area" />
+          <input type="text" onChange={handleChange_res} name="searchKey"  placeholder="Based on name" />  
         </li>
         </ul>
         <Routes>

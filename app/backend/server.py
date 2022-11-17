@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import *
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.pool import NullPool
 from flask_cors import CORS, cross_origin
 from flask import Flask, request, render_template, g, redirect, Response, jsonify
@@ -57,13 +58,19 @@ def signup_customer():
   password = request.json.get('password', None)
   phoneno = request.json.get('phoneno', None)
   name = request.json.get('name', None)
-  print("email: ", email)
-  print("password: ", password)
-  print("phoneno: ", phoneno)
-  print("name: ", name)
-  #todo add staff and customer auth
-  g.conn.execute("INSERT INTO Customers (email_id, username, user_password, mobile_no) VALUES (%s, %s, %s, %s)", email, name, password, phoneno)
-  return jsonify({"msg": "Customer created successfully"}), 200
+  cmd = f"INSERT INTO Customers(email_id, username, user_password, mobile_no) VALUES \
+              ('{email}', '{name}', '{password}', '{phoneno}')"
+  errflag = 0
+  try:
+    cursor = g.conn.execute(cmd)
+  except Exception as err:
+    print("###### " + str(err.orig) + " for parameters" + str(err.params))
+    errflag = 1
+  
+  if not errflag:
+    return jsonify({"msg": "Customer created successfully"}), 200
+  else:
+    return jsonify({"msg": "Invalid entries"}), 300
 
 ####### Staff Sign up ###########
 @app.route('/api/auth/signup/staff', methods=['POST'])
@@ -73,13 +80,20 @@ def signup_staff():
   password = request.json.get('password', None)
   staffid = request.json.get('staffid', None)
   name = request.json.get('name', None)
-  print("email: ", email)
-  print("password: ", password)
-  print("phoneno: ", staffid)
-  print("name: ", name)
-  #todo add staff and customer auth
-  g.conn.execute("INSERT INTO Customers (email_id, username, user_password, staff_id) VALUES (%s, %s, %s, %s)", email, name, password, staffid)
-  return jsonify({"msg": "Staff created successfully"}), 200
+  cmd = f"INSERT INTO Staff(email_id, username, user_password, staff_id) VALUES \
+          ('{email}', '{name}', '{password}', '{staffid}')"
+  errflag = 0
+  try:
+    cursor = g.conn.execute(cmd)
+  except Exception as err:
+    print("###### " + str(err.orig) + " for parameters" + str(err.params))
+    errflag = 1
+  
+  if not errflag:
+    return jsonify({"msg": "Staff created successfully"}), 200
+  else:
+    return jsonify({"msg": "Invalid entries"}), 300
+  
 
 @app.route('/api/auth/login', methods=['POST'])
 @cross_origin()
@@ -123,15 +137,10 @@ def logout():
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
 def top_restaurants():
-  #todo add restaurant id here
-  cursor = g.conn.execute("SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating"  
-  " FROM Restaurants_Fetches rf, rates r, ratings ra"
-  " WHERE rf.license_no = r.license_no"
-      " AND r.rating_id = ra.rating_id"
-      " GROUP BY rf.license_no, rf.restaurant_name"
-      " HAVING (AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0) >= 4)"
-      " ORDER BY Average_Rating DESC"
-      )
+  cmd = "SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating \
+    FROM Restaurants_Fetches rf, rates r, ratings ra WHERE rf.license_no = r.license_no AND r.rating_id = ra.rating_id \
+      GROUP BY rf.license_no, rf.restaurant_name HAVING (AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0) >= 4) ORDER BY Average_Rating DESC"
+  cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
     names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
@@ -141,54 +150,82 @@ def top_restaurants():
 @app.route('/api/users/top', methods=['GET'])
 @cross_origin()
 def top_users():
-  cursor = g.conn.execute("SELECT username"
-    " FROM customers c, rates r"
-    " WHERE c.email_id= r.email_id"
-      " GROUP BY c.email_id, username"
-      " HAVING COUNT(*) >= 1"
-      " Limit 10"
-      )
+  cmd = "SELECT username, COUNT(*) FROM customers c, rates r WHERE c.email_id= r.email_id GROUP BY c.email_id, username HAVING COUNT(*) > 1 ORDER BY COUNT(*) DESC Limit 10"
+  cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
-    names.append(result['username'])
+    names.append({"userName" : result['username'], "numReviews" : result[1]})
   cursor.close()
   return jsonify(names)
 
 @app.route('/api/users/reviews/<email>', methods=['GET'])
 @cross_origin()
 def user_reviews(email):
-  cursor = g.conn.execute("SELECT RA.rating_id, RF.restaurant_name, round((RA.ambience + RA.crowd + RA.customer_service + RA.value_for_money + RA.taste + RA.cooked)/6.0, 2) AS average_rating, RA.overall_written_review"
-    " FROM Customers C, Rates R, Ratings RA, Restaurants_Fetches RF"
-    " WHERE C.email_id = R.email_id  AND R.rating_id = RA.rating_id AND RF.license_no = R.license_no AND C.email_id = \'" + email + "\'"
-      )
+  cmd = "SELECT RA.rating_id, RF.restaurant_name, round((RA.ambience + RA.crowd + RA.customer_service + RA.value_for_money + RA.taste + RA.cooked)/6.0, 2) AS average_rating, RA.overall_written_review FROM Customers C, Rates R, Ratings RA, Restaurants_Fetches RF WHERE C.email_id = R.email_id  AND R.rating_id = RA.rating_id AND RF.license_no = R.license_no AND C.email_id = \'" + email + "\' ORDER BY average_rating DESC"
+  cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
     names.append({"ratingId": result['rating_id'], "restaurantName": result['restaurant_name'], "avgRating": str(result[2]), "writtenReview": result['overall_written_review']})
   cursor.close()
   return jsonify(names)
 
-@app.route('/api/restaurants/search/<searchKey>', methods=['GET'])
+@app.route('/api/restaurants/search/area/<searchKey>', methods=['GET'])
 @cross_origin()
-def search(searchKey):
-  print(searchKey)
+def search_area(searchKey):
   names = []
-  # search by restaurant or dish
-  # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
+  # search a restaurant based on area
   cmd = ""
   if searchKey == "0" or searchKey is None:
-    cmd = "SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
+    cmd = "SELECT rf.license_no, rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
   else:
-    cmd = "SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id WHERE rf.area LIKE \'%%" + searchKey + "%%\' GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
+    cmd = "SELECT rf.license_no, rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id WHERE rf.area LIKE \'%%" + searchKey + "%%\' GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
   
-  #print(cmd)
   cursor = g.conn.execute(cmd)
-  #print(cursor)
   for result in cursor:
-    #print(result)
-    names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
+    names.append({"licenseNo" : result['license_no'], "restaurantName" : result['restaurant_name'], "avg_rating" : str(result[2])})
   cursor.close()
-  #print(names)
   return jsonify(names)
+
+@app.route('/api/restaurants/search/res/<searchKey>', methods=['GET'])
+@cross_origin()
+def search_res(searchKey):
+  names = []
+  # search a restaurant based on its name
+  cmd = ""
+  if searchKey == "0" or searchKey is None:
+    cmd = "SELECT rf.license_no, rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
+  else:
+    cmd = "SELECT rf.license_no, rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating FROM Restaurants_Fetches rf LEFT JOIN rates r On  rf.license_no = r.license_no LEFT JOIN ratings ra ON r.rating_id = ra.rating_id WHERE rf.restaurant_name LIKE \'%%" + searchKey + "%%\' GROUP BY rf.license_no, rf.restaurant_name ORDER BY Average_Rating DESC NULLS LAST"
+  
+  cursor = g.conn.execute(cmd)
+  for result in cursor:
+    names.append({"licenseNo" : result['license_no'], "restaurantName" : result['restaurant_name'], "avg_rating" : str(result[2])})
+  cursor.close()
+  return jsonify(names)
+
+
+# @app.route('/api/area/<searchKey>', methods=['GET'])
+# @cross_origin()
+# def search(searchKey):
+#   print(searchKey)
+#   names = []
+#   # search by area
+#   # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
+#   cmd = ""
+#   if searchKey == "0" or searchKey is None:
+#     cmd = "SELECT area,zipcode FROM locations order by zipcode"
+#   else:
+#     cmd = "SELECT area,zipcode FROM locations Where area LIKE \'%%" + searchKey + "%%\' order by zipcode"
+#   print(cmd)
+#   cursor = g.conn.execute(cmd)
+#   print(cursor)
+#   for result in cursor:
+#     print(result)
+#     names.append({"area" : result['area'], "zipcode" : str(result[1])})
+#   cursor.close()
+#   print(names)
+#   return jsonify(names)
+
 
 @app.route('/api/reviews/add', methods=['POST'])
 @cross_origin()
@@ -196,24 +233,71 @@ def addReview():
   # search by restaurant or dish
   # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
   email = request.json.get("email", None)
-  restaurant = request.json.get("restaurant", None)
-  review = request.json.get("review", None)
-  reviewId = str(uuid4())[:20]
-  cmd = "SELECT LicenseNo FROM Restaurants WHERE RestaurantName = \'" + restaurant + "\'"
+  license_num = request.json.get("restaurant_license", None)
+  
+  ambience = request.json.get("ambience", None)
+  crowd = request.json.get("crowd", None)
+  customer_service = request.json.get("customer_service", None)
+  value_for_money = request.json.get("value_for_money", None)
+  taste = request.json.get("taste", None)
+  cooked = request.json.get("cooked", None)
+  writtenReview = request.json.get("writtenReview", None)
+
+  cmd = f"SELECT COUNT(*) FROM Ratings R, Rates RA WHERE R.rating_id = RA.rating_id AND RA.email_id = '{str(email)}' AND RA.license_no = '{str(license_num)}'"
   cursor = g.conn.execute(cmd)
-  licenseNo = cursor.fetchone()[0]
-  cmd = f"INSERT INTO RestaurantReview (ReviewId, LicenseNo, EmailId, WrittenReview) VALUES ('{reviewId}', '{licenseNo}', '{email}', '{review}')"
-  cursor = g.conn.execute(cmd)
-  return jsonify("Added successfully")
+
+  for result in cursor:
+    review_exists = result[0]
+
+  if review_exists != 0:
+    cmd = f"SELECT DISTINCT R.rating_id FROM Ratings R, Rates RA WHERE R.rating_id = RA.rating_id AND RA.email_id = '{str(email)}' AND RA.license_no = '{str(license_num)}'"
+    cursor = g.conn.execute(cmd)
+
+    for result in cursor:
+      existing_rating_id = result[0]
+
+    #print("Existing id: ", existing_rating_id)
+    cmd = f"UPDATE Ratings SET ambience = {ambience}, crowd = {crowd}, customer_service = {customer_service}, value_for_money = {value_for_money}, taste = {taste}, cooked = {cooked}," + " overall_written_review = \'" + str(writtenReview) + "\' WHERE rating_id = \'" + str(existing_rating_id) + "\'"
+    errflag = 0
+    try:
+      cursor = g.conn.execute(cmd)
+    except Exception as err:
+      print("###### " + str(err.orig) + " for parameters" + str(err.params))
+      errflag = 1
+    
+    if not errflag:
+      return jsonify("Rating already exists. So successfully modified it")
+    else:
+      return jsonify("Invalid entries")
+  else:
+    cmd = "SELECT COUNT(*) FROM Ratings"
+    cursor = g.conn.execute(cmd)
+    num_ratings = cursor.fetchone()[0]
+    new_rating_id = str(int(num_ratings) + 10).zfill(5)
+    #print(new_rating_id)
+    cmd = f"INSERT INTO Ratings(rating_id, overall_written_review, ambience, crowd, customer_service, value_for_money, taste, cooked) VALUES ('{new_rating_id}', '{writtenReview}', {ambience}, {crowd}, {customer_service}, {value_for_money}, {taste}, {cooked})"
+    errflag = 0
+    try:
+      cursor = g.conn.execute(cmd)
+    except Exception as err:
+      print("###### " + str(err.orig) + " for parameters" + str(err.params))
+      errflag = 1
+    
+    if not errflag:
+      cmd = f"INSERT INTO Rates(rating_id, email_id, license_no) VALUES ('{new_rating_id}', '{email}', '{license_num}')"
+      cursor = g.conn.execute(cmd)
+      return jsonify("Added a new rating successfully")
+    else:
+      return jsonify("Invalid entries")
 
 @app.route('/api/reviews/delete', methods=['DELETE', 'OPTIONS'])
 @cross_origin()
 def deleteReview():
-  reviewId = request.json.get("reviewId", None)
-  app.logger.info(reviewId)
-  cmd = f"DELETE FROM RestaurantReview WHERE ReviewId = '{reviewId}'"
+  ratingId = request.json.get("ratingId", None)
+  app.logger.info(ratingId)
+  cmd = f"DELETE FROM Ratings WHERE rating_id = '{ratingId}'"
   cursor = g.conn.execute(cmd)
-  return jsonify("Deleted successfully")
+  return jsonify("Deleted the existing rating successfully")
 
 @app.route('/api/reviews/edit', methods=['PUT'])
 @cross_origin()
@@ -222,7 +306,7 @@ def editReview():
   # SELECT RestaurantName FROM Restaurants WHERE RestaurantName LIKE "%Thai%";
   ratingId = request.json.get("ratingId", None)
   app.logger.info(ratingId)
-  print('ratingId', ratingId)
+  #print('ratingId', ratingId)
   ambience = request.json.get("ambience", None)
   crowd = request.json.get("crowd", None)
   customer_service = request.json.get("customer_service", None)
@@ -231,8 +315,22 @@ def editReview():
   cooked = request.json.get("cooked", None)
   writtenReview = request.json.get("writtenReview", None)
   cmd = f"UPDATE Ratings SET ambience = {ambience}, crowd = {crowd}, customer_service = {customer_service}, value_for_money = {value_for_money}, taste = {taste}, cooked = {cooked}," + " overall_written_review = \'" + str(writtenReview) + "\' WHERE rating_id = \'" + str(ratingId) + "\'"
-  cursor = g.conn.execute(cmd)
-  return jsonify("Edited successfully")
+  errflag = 0
+  try:
+    cursor = g.conn.execute(cmd)
+  except Exception as err:
+    print("###### " + str(err.orig) + " for parameters" + str(err.params))
+    errflag = 1
+  
+  if not errflag:
+    return jsonify("Successfully edited the review")
+  else:
+    return jsonify("Invalid entries")
+
+@app.route('/api/favorite', methods=['PUT'])
+@cross_origin()
+def favorite_res():
+
 
 if __name__ == "__main__":
   import click

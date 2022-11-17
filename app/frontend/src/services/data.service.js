@@ -22,7 +22,7 @@ const deleteReview = (ratingId) => {
       });
     }
 
-const editReview = (ratingId, ambience, crowd, customer_service, value_for_money, taste, cooked,writtenReview) => {
+const editReview = (ratingId, ambience, crowd, customer_service, value_for_money, taste, cooked, writtenReview) => {
     return axios.put(API_URL + "edit", {
         ratingId,
         ambience,
@@ -35,11 +35,17 @@ const editReview = (ratingId, ambience, crowd, customer_service, value_for_money
         });
     }
 
-const addReview = (email, review, restaurant) => {
+const addReview = (email, ambience, crowd, customer_service, value_for_money, taste, cooked, writtenReview, restaurant_license) => {
     return axios.post(API_URL + "add", {
         email,
-        review,
-        restaurant
+        ambience,
+        crowd,
+        customer_service,
+        value_for_money,
+        taste,
+        cooked,
+        writtenReview,
+        restaurant_license
         });
     }
 

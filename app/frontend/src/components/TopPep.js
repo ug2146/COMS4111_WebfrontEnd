@@ -16,9 +16,9 @@ function TopPep() {
                     {people.map((person) => (
                         <div>
                             <Card style={{ width: '18rem' }}>
-                                <Card.Title>{person}</Card.Title>
+                                <Card.Title>{person.userName}</Card.Title>
                                 <Card.Text>
-                                    {/*{person}*/}
+                                    Number of Reviews : {person.numReviews}
                                 </Card.Text>
                                 <Button variant="primary">Go to the Reviewer's Page</Button>
                             </Card>
