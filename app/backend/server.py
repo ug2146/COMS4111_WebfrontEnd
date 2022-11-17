@@ -70,7 +70,7 @@ def signup_customer():
   if not errflag:
     return jsonify({"msg": "Customer created successfully"}), 200
   else:
-    return jsonify({"msg": "Invalid entries"}), 300
+    return jsonify({"msg": "Invalid entries"}), 200
 
 ####### Staff Sign up ###########
 @app.route('/api/auth/signup/staff', methods=['POST'])
@@ -92,7 +92,7 @@ def signup_staff():
   if not errflag:
     return jsonify({"msg": "Staff created successfully"}), 200
   else:
-    return jsonify({"msg": "Invalid entries"}), 300
+    return jsonify({"msg": "Invalid entries"}), 200
   
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -109,7 +109,7 @@ def login():
   cursor = g.conn.execute(cmd)
   user = cursor.fetchone()[0]
   if user == 0:
-    return jsonify({"msg": "User not registered"}), 401
+    return jsonify({"access_token":""}), 200
   
   if tick == "true":
     cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\' AND S.user_password = \'" + password + "\'"
@@ -120,7 +120,7 @@ def login():
   user = cursor.fetchone()[0]
   
   if user == 0:
-    return jsonify({"msg": "Wrong password"}), 401
+    return jsonify({"access_token":""}), 200
 
   access_token = create_access_token(identity=email)
   response = {"access_token":access_token}
@@ -166,6 +166,17 @@ def user_reviews(email):
   names = []
   for result in cursor:
     names.append({"ratingId": result['rating_id'], "restaurantName": result['restaurant_name'], "avgRating": str(result[2]), "writtenReview": result['overall_written_review']})
+  cursor.close()
+  return jsonify(names)
+
+@app.route('/api/users/favorites/<email>', methods=['GET'])
+@cross_origin()
+def user_favorites(email):
+  cmd = "SELECT RF.license_no, RF.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS average_rating FROM Views V, Rates R, Ratings RA, Restaurants_Fetches RF WHERE R.rating_id = RA.rating_id AND RF.license_no = R.license_no AND RF.license_no IN (SELECT V.license_no FROM Views V WHERE V.email_id = \'" + email + "\' AND V.favorite IS TRUE)  GROUP BY RF.license_no, RF.restaurant_name ORDER BY average_rating DESC NULLS LAST"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"licenseNo": result['license_no'], "restaurantName": result['restaurant_name'], "avgRating": str(result[2])})
   cursor.close()
   return jsonify(names)
 
@@ -327,9 +338,45 @@ def editReview():
   else:
     return jsonify("Invalid entries")
 
-@app.route('/api/favorite', methods=['PUT'])
+@app.route('/api/favorite/add', methods=['POST'])
 @cross_origin()
-def favorite_res():
+def add_favorite_res():
+  #favorite this restaurant
+  email = request.json.get("email", None)
+  license_num = request.json.get("restaurant_license", None)
+  fav_value = request.json.get("fav_value", None)
+
+  cmd = f"SELECT COUNT(*) FROM Views WHERE email_id = '{email}' AND license_no = '{license_num}'"
+  cursor = g.conn.execute(cmd)
+
+  for result in cursor:
+    existing_count = result[0]
+
+  if int(existing_count) == 0 and (fav_value == 'Y' or fav_value == 'y'):
+    cmd = f"INSERT INTO Views(email_id, license_no, favorite) VALUES('{email}','{license_num}','TRUE')"
+    cursor = g.conn.execute(cmd)
+  
+  return jsonify("Favorited the Restaurant")
+
+@app.route('/api/favorite/delete', methods=['POST'])
+@cross_origin()
+def rem_favorite_res():
+  #favorite this restaurant
+  email = request.json.get("email", None)
+  license_num = request.json.get("restaurant_license", None)
+  rem_value = request.json.get("rem_value", None)
+
+  cmd = f"SELECT COUNT(*) FROM Views WHERE email_id = '{email}' AND license_no = '{license_num}'"
+  cursor = g.conn.execute(cmd)
+
+  for result in cursor:
+    existing_count = result[0]
+  
+  if int(existing_count) == 1 and (rem_value == 'Y' or rem_value == 'y'):
+    cmd = f"DELETE FROM Views WHERE email_id = '{email}' AND license_no = '{license_num}'"
+    cursor = g.conn.execute(cmd)
+  
+  return jsonify("Removed the favorite of Restaurant")
 
 
 if __name__ == "__main__":

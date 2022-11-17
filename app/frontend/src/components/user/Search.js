@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { addReview } from '../services/data.service';
+import { addReview, addFavorite } from '../../services/data.service';
 import {Card, Button} from 'react-bootstrap';
 
 function Search({ restaurants, email }) {
@@ -14,7 +14,7 @@ function Search({ restaurants, email }) {
     const [cooked, setCooked] = useState("");
     const [writtenReview, setWrittenReview] = useState("");
 
-    const [favorite, setFavorite] = useState("");
+    const [addfavorite, setaddFavorite] = useState("");
 
     const handleChange_ambience = (event) => {
         console.log('value', event.target.value);
@@ -51,9 +51,9 @@ function Search({ restaurants, email }) {
         setWrittenReview(event.target.value);
     };
 
-    const handleChange_favorite = (event) => {
+    const handleChange_addfavorite = (event) => {
         console.log('value', event.target.value);
-        setFavorite(event.target.value);
+        setaddFavorite(event.target.value);
     };
 
     useEffect(() => {
@@ -62,6 +62,10 @@ function Search({ restaurants, email }) {
         
     const addRev = (event) => {
         addReview(email, ambience, crowd, customer_service, value_for_money, taste, cooked, writtenReview, event.target.name);
+    };
+
+    const addFav = (event) => {
+        addFavorite(email, event.target.name, addfavorite);
     };
 
     return (
@@ -83,8 +87,8 @@ function Search({ restaurants, email }) {
                             <input type="text" onChange={handleChange_cooked} name="cooked"  placeholder="Cooked 0-5" />
                             <input type="text" onChange={handleChange_writtenReview} name="writtenReview"  placeholder="Written review" />
                         </Button>
-                        <Button variant="primary" onClick={addRev} name={restaurant.licenseNo}>Favorite this Restaurant?
-                            <input type="text" onChange={handleChange_favorite} name="favorite"  placeholder="Y/N" />
+                        <Button variant="primary" onClick={addFav} name={restaurant.licenseNo}>Favorite this Restaurant?
+                            <input type="text" onChange={handleChange_addfavorite} name="addfavorite"  placeholder="Y/y" />
                         </Button>
                     </Card>
                 </div>

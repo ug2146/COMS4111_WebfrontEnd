@@ -21,7 +21,7 @@ const register_staff = (email, password, staffid, name) => {
   });
 };
 
-const login = (email, password, tick) => {
+const login = (email, password, tick, setToken) => {
   return axios
     .post(API_URL + "login", {
       email : email,
@@ -29,10 +29,18 @@ const login = (email, password, tick) => {
       tick : tick,
     })
     .then((response) => {
-      if (response.data.accessToken) {
-        localStorage.setItem('token', response.data.accessToken);
+      console.log(response)
+      if (response.data.access_token!== "") {
+        console.log(response.data.access_token);
+        console.log(response.status)
+        setToken(response.data.access_token);
       }
-      return response.data;
+      else
+      {
+        console.log("coming here");
+        setToken("");
+      }
+      return response.data.access_token;
     });
 };
 

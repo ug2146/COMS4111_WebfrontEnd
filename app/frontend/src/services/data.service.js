@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8111/api/reviews/";
+const API_URL = "http://localhost:8111/api/";
 
 // async function deleteReview(reviewId) {
 //     console.log('reviewId', reviewId);
@@ -12,7 +12,7 @@ const API_URL = "http://localhost:8111/api/reviews/";
 // }
 
 const deleteReview = (ratingId) => {
-    return axios.delete(API_URL + "delete", {
+    return axios.delete(API_URL + "reviews/delete", {
         data: {
             ratingId,
         },
@@ -23,7 +23,7 @@ const deleteReview = (ratingId) => {
     }
 
 const editReview = (ratingId, ambience, crowd, customer_service, value_for_money, taste, cooked, writtenReview) => {
-    return axios.put(API_URL + "edit", {
+    return axios.put(API_URL + "reviews/edit", {
         ratingId,
         ambience,
         crowd,
@@ -36,7 +36,7 @@ const editReview = (ratingId, ambience, crowd, customer_service, value_for_money
     }
 
 const addReview = (email, ambience, crowd, customer_service, value_for_money, taste, cooked, writtenReview, restaurant_license) => {
-    return axios.post(API_URL + "add", {
+    return axios.post(API_URL + "reviews/add", {
         email,
         ambience,
         crowd,
@@ -49,8 +49,26 @@ const addReview = (email, ambience, crowd, customer_service, value_for_money, ta
         });
     }
 
+const addFavorite = (email, restaurant_license, fav_value) => {
+    return axios.post(API_URL + "favorite/add", {
+        email,
+        restaurant_license,
+        fav_value
+        });
+}
+
+const delFavorite = (email, restaurant_license, rem_value) => {
+    return axios.post(API_URL + "favorite/delete", {
+        email,
+        restaurant_license,
+        rem_value
+        });
+}
+
 export {
     deleteReview,
     editReview,
-    addReview
+    addReview,
+    addFavorite,
+    delFavorite
 };

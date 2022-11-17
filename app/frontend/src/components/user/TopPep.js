@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from "axios";
-import {topPep} from "../services/fetch.service";
+import {topPep} from "../../services/fetch.service";
 import {Container ,Card, Col, Button} from 'react-bootstrap';
 function TopPep() {
     const [isLoading, setLoading] = useState(true);

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import axios from "axios";
-import { myRev } from "../services/fetch.service";
+import { myRev } from "../../services/fetch.service";
 import { Container, Card, Col, Button } from 'react-bootstrap';
-import { editReview, deleteReview } from "../services/data.service";
+import { editReview, deleteReview } from "../../services/data.service";
 
 function MyReviews({email}) {
     const [isLoading, setLoading] = useState(true);

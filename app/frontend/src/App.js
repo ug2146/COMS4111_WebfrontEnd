@@ -9,10 +9,11 @@ import Login from './components/Login';
 import Register_customer from './components/Register_customer';
 import Register_staff from './components/Register_staff';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
-import TopPep from './components/TopPep';
-import TopRes from './components/TopRes';
-import Search from './components/Search';
-import MyReviews from './components/MyReviews';
+import TopPep from './components/user/TopPep';
+import TopRes from './components/user/TopRes';
+import Search from './components/user/Search';
+import MyReviews from './components/user/MyReviews';
+import MyFavorites from './components/user/MyFavorites';
 import { search_area, search_res } from "./services/fetch.service";
 
 function App() {
@@ -34,7 +35,7 @@ function App() {
   return (
     <div className="App">
       <Header token={removeToken} />
-      {!token && token !== "" && token !== undefined ?
+      {!token || token === "" && token === undefined ?
         <div>
           <Login setToken={setToken} setEmail = {setEmail} setTick={setTick}/>
           <Register_customer />
@@ -42,7 +43,7 @@ function App() {
         </div>
         : 
         !tick ?
-        <div> Hello Customer! 
+        <div> Hello {email}! 
         <ul className="Features">
         <li>
           <Link to="/topRes">Find top Restaurants!</Link>
@@ -52,6 +53,9 @@ function App() {
         </li>
         <li>
           <Link to="/myrev">My reviews</Link>
+        </li>
+        <li>
+          <Link to="/myfav">My favorites</Link>
         </li>
         <li>
           <Link to="/search">Search Restaurants</Link><br />
@@ -64,6 +68,7 @@ function App() {
         <Route exact path='/topPep' element={< TopPep />}></Route>
         <Route exact path='/search' element={< Search restaurants={restaurants} email={email} />}></Route>
         <Route exact path='/myrev' element={< MyReviews email={email}/>}></Route>
+        <Route exact path='/myfav' element={< MyFavorites email={email}/>}></Route>
       </Routes>
         </div>
         :

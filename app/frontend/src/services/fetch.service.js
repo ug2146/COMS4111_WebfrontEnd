@@ -32,6 +32,16 @@ const myRev = (setData, setLoading, email) => {
   return data;
 };
 
+const myFav = (setData, setLoading, email) => {
+  const data = [];
+  axios.get(API_URL + "users/favorites/" + email)
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+}; 
+
 const search_area = (name, setData) => {
   let areaName = name;
   if (areaName === "") {areaName = "0"}
@@ -55,5 +65,6 @@ export {
   topPep,
   search_area,
   search_res,
-  myRev
+  myRev,
+  myFav
 };
