@@ -98,7 +98,7 @@ function StaffView({email}) {
                             <Card.Text>
                             </Card.Text>
                             <Link to="/staffres">
-                            <Button value = {restaurant.restaurantName} onClick= {handleClick}> 
+                            <Button value = {restaurant.license_no} onClick= {handleClick}> 
                                 View Restaurant Details
                             </Button>
                             </Link>
@@ -107,7 +107,7 @@ function StaffView({email}) {
                     </div>
                 ))}
                 <Routes>
-                    <Route exact path='/staffres' element={< StaffRestaurant restaurant={curRestaurant}/>}></Route>
+                    <Route exact path='/staffres' element={< StaffRestaurant restaurantName={curRestaurant}/>}></Route>
                 </Routes>
                 </div>
             }

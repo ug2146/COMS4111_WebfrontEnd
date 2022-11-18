@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8111/api/reviews/";
 const STAFF_API = "http://localhost:8111/api/staff/";
-
+const RESTAURANT_API = "http://localhost:8111/api/restaurant/";
 // async function deleteReview(reviewId) {
 //     console.log('reviewId', reviewId);
 //     const response = await fetch(API_URL + "delete", {
@@ -55,9 +55,19 @@ const addRestaurant = async (licenseNo, restaurant_name, customer_service_no, st
         });
     }
 
+const addDish = async (dish_name, dish_category, price, licenseNo) => {
+    return axios.post(RESTAURANT_API + "addDish", {
+        dish_name,
+        dish_category,
+        price,
+        licenseNo
+        });
+    }
+
 export {
     deleteReview,
     editReview,
     addReview,
-    addRestaurant
+    addRestaurant,
+    addDish
 };

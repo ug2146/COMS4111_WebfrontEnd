@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, g, redirect, Response, jsonif
 from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, \
                                unset_jwt_cookies, jwt_required, JWTManager
 from datetime import datetime
-from uuid import uuid4
+import uuid
 import logging
 
 
@@ -53,11 +53,12 @@ def teardown_request(exception):
 @app.route('/', methods=['GET'])
 @cross_origin()
 def basic():
-  cursor = g.conn.execute("SELECT * from Locations")
+  restaurant_name = "a"
+  cursor = g.conn.execute("SELECT license_no, restaurant_name from Restaurants_Fetches NATURAL JOIN Manages")
 
   names = []
   for result in cursor:
-    names.append({"area" : result['area'], "zipcode" : result['zipcode']})
+    names.append({"license_no" : result['license_no'], "restaurant_name" : result['restaurant_name']})
   cursor.close()
   return jsonify(names)
 
@@ -139,11 +140,37 @@ def logout():
   unset_jwt_cookies(response)
   return response
 
+@app.route('/api/restaurant/dishes', methods= ['GET'])
+@cross_origin()
+def get_dishes():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cursor = g.conn.execute("SELECT dish_name, dish_category, price from Restaurants_Fetches NATURAL JOIN Adds NATURAL JOIN Dishes" 
+  " WHERE license_no = \'" + license_no + "\'")
+  names = []
+  for result in cursor:
+    names.append({"dish_name" : result['dish_name'], "dish_category" : result['dish_category'], "price": result['price']})
+  cursor.close()
+  return jsonify(names)
+
+@app.route('/api/restaurant/addDish', methods= ['POST'])
+@cross_origin()
+def add_dish():
+  licenseNo = request.json.get("licenseNo", None)
+  dish_name = request.json.get("dish_name", None)
+  dish_category = request.json.get("dish_category", None)
+  price = request.json.get('price', None)
+  id = str(uuid.uuid1())[:19]
+  print(id)
+  g.conn.execute("INSERT INTO Dishes (dish_id, dish_name, dish_category, price) VALUES (%s, %s, %s, %s)", id, dish_name, dish_category, float(price))
+  g.conn.execute("INSERT INTO Adds (dish_id,license_no) VALUES (%s, %s)", id, licenseNo)
+  return jsonify({"msg": "Dish added successfully"}), 200
+
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
 def top_restaurants():
   #todo add restaurant id here
-  cursor = g.conn.execute("SELECT rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating"  
+  cursor = g.conn.execute("SELECT rf.license_no, rf.restaurant_name, round(AVG((ra.ambience + ra.crowd + ra.customer_service + ra.value_for_money + ra.taste + ra.cooked)/6.0), 2) AS Average_Rating"  
   " FROM Restaurants_Fetches rf, rates r, ratings ra"
   " WHERE rf.license_no = r.license_no"
       " AND r.rating_id = ra.rating_id"
@@ -153,7 +180,10 @@ def top_restaurants():
       )
   names = []
   for result in cursor:
-    names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
+    print(result['license_no'])
+    print(result[0])
+    print(result['restaurant_name'])
+    names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[2]), "license_no": result['license_no']})
   cursor.close()
   return jsonify(names)
 
@@ -162,13 +192,13 @@ def top_restaurants():
 def staff_restaurants(email):
   #todo add restaurant id here
   
-  cursor = g.conn.execute("Select rf.restaurant_name from Restaurants_Fetches rf NATURAL JOIN Manages"
+  cursor = g.conn.execute("Select rf.restaurant_name, license_no from Restaurants_Fetches rf NATURAL JOIN Manages"
       " WHERE Manages.email_id = \'" + email + "\'"
       )
       # Select rf.restaurant_name from Restaurants_Fetches rf NATURAL JOIN Manages
   names = []
   for result in cursor:
-    names.append({"restaurantName" : result['restaurant_name']})
+    names.append({"restaurantName" : result['restaurant_name'], "license_no": result['license_no']})
   cursor.close()
   return jsonify(names)
 
@@ -199,7 +229,7 @@ def addRestaurants():
 @app.route('/api/users/top', methods=['GET'])
 @cross_origin()
 def top_users():
-  cursor = g.conn.execute("SELECT username"
+  cursor = g.conn.execute("SELECT c.email_id AS email"
     " FROM customers c, rates r"
     " WHERE c.email_id= r.email_id"
       " GROUP BY c.email_id, username"
@@ -208,7 +238,7 @@ def top_users():
       )
   names = []
   for result in cursor:
-    names.append(result['username'])
+    names.append(result['email'])
   cursor.close()
   return jsonify(names)
 
