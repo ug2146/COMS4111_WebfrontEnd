@@ -49,6 +49,18 @@ def teardown_request(exception):
     pass
 
 #@jwt_required()
+
+@app.route('/', methods=['GET'])
+@cross_origin()
+def basic():
+  cursor = g.conn.execute("SELECT * from Locations")
+
+  names = []
+  for result in cursor:
+    names.append({"area" : result['area'], "zipcode" : result['zipcode']})
+  cursor.close()
+  return jsonify(names)
+
 ####### Customer Sign up ###########
 @app.route('/api/auth/signup/customer', methods=['POST'])
 @cross_origin()
@@ -84,20 +96,26 @@ def signup_staff():
 @app.route('/api/auth/login', methods=['POST'])
 @cross_origin()
 def login():
+  print("lgn")
   email = request.json.get("email", None)
   password = request.json.get("password", None)
   tick = request.json.get("tick", None)
-  if tick == "true":
+  print(tick)
+  if tick != False:
+    print("check true")
     cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\'"
   else:
+    print("falserr")
     cmd = "SELECT COUNT(*) FROM Customers C WHERE C.email_id = \'" + email + "\'"
   
   cursor = g.conn.execute(cmd)
   user = cursor.fetchone()[0]
   if user == 0:
+    print("no email found")
     return jsonify({"access_token":""}), 200
   
-  if tick == "true":
+  if tick != False:
+    print("checking staff")
     cmd = "SELECT COUNT(*) FROM Staff S WHERE S.email_id = \'" + email + "\' AND S.user_password = \'" + password + "\'"
   else:
     cmd = "SELECT COUNT(*) FROM Customers C WHERE C.email_id = \'" + email + "\' AND C.user_password = \'" + password + "\'"
@@ -106,6 +124,7 @@ def login():
   user = cursor.fetchone()[0]
   
   if user == 0:
+    print("no pass")
     return jsonify({"access_token":""}), 200
 
   access_token = create_access_token(identity=email)
@@ -137,6 +156,45 @@ def top_restaurants():
     names.append({"restaurantName" : result['restaurant_name'], "avg_rating" : str(result[1])})
   cursor.close()
   return jsonify(names)
+
+@app.route('/api/staff/restaurants/<email>', methods=['GET'])
+@cross_origin()
+def staff_restaurants(email):
+  #todo add restaurant id here
+  
+  cursor = g.conn.execute("Select rf.restaurant_name from Restaurants_Fetches rf NATURAL JOIN Manages"
+      " WHERE Manages.email_id = \'" + email + "\'"
+      )
+      # Select rf.restaurant_name from Restaurants_Fetches rf NATURAL JOIN Manages
+  names = []
+  for result in cursor:
+    names.append({"restaurantName" : result['restaurant_name']})
+  cursor.close()
+  return jsonify(names)
+
+def getArea(zipcode):
+  cursor = g.conn.execute("SELECT area FROM locations Where zipcode = \'" + zipcode + "\'")
+  area = cursor.fetchone()[0]
+  return area
+
+@app.route('/api/staff/addRestaurant', methods=['POST'])
+@cross_origin()
+def addRestaurants():
+  licenseNo = request.json.get("licenseNo", None)
+  restaurant_name = request.json.get("restaurant_name", None)
+  customer_service_no = request.json.get("customer_service_no", None)
+  street_address = request.json.get("street_address", None)
+  Zipcode = int(request.json.get('zipcode', None))
+
+  email = request.json.get('email', None)
+  area = getArea(str(Zipcode))
+  
+  g.conn.execute("INSERT INTO Restaurants_Fetches (license_no, restaurant_name, customer_service_no, street_address,zipcode,area) VALUES (%s, %s, %s, %s, %s, %s)", licenseNo, restaurant_name, customer_service_no, street_address, str(Zipcode), area)
+  g.conn.execute("INSERT INTO Manages (license_no, email_id) VALUES (%s, %s)", licenseNo, email)
+
+  #user = cursor.fetchone()[0]
+  return jsonify({"msg": "Customer created successfully"}), 200
+
 
 @app.route('/api/users/top', methods=['GET'])
 @cross_origin()
@@ -245,6 +303,6 @@ if __name__ == "__main__":
   def run(debug, threaded, host, port):
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
   run()

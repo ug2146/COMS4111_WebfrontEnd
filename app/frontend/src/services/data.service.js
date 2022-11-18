@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8111/api/reviews/";
+const STAFF_API = "http://localhost:8111/api/staff/";
 
 // async function deleteReview(reviewId) {
 //     console.log('reviewId', reviewId);
@@ -43,8 +44,20 @@ const addReview = (email, review, restaurant) => {
         });
     }
 
+const addRestaurant = async (licenseNo, restaurant_name, customer_service_no, street_address, zipcode, email) => {
+    return axios.post(STAFF_API + "addRestaurant", {
+        licenseNo,
+        restaurant_name,
+        customer_service_no,
+        street_address,
+        zipcode,
+        email
+        });
+    }
+
 export {
     deleteReview,
     editReview,
-    addReview
+    addReview,
+    addRestaurant
 };

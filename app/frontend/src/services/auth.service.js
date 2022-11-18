@@ -29,15 +29,15 @@ const login = (email, password, tick, setToken) => {
       tick : tick,
     })
     .then((response) => {
-      console.log(response)
+      //console.log(response)
       if (response.data.access_token!== "") {
-        console.log(response.data.access_token);
-        console.log(response.status)
+        //console.log(response.data.access_token);
+        //console.log(response.status)
         setToken(response.data.access_token);
       }
       else
       {
-        console.log("coming here");
+        //console.log("coming here");
         setToken("");
       }
       return response.data.access_token;

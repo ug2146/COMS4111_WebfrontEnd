@@ -12,6 +12,17 @@ const topRes = (setData, setLoading) => {
   return data;
 };
 
+const staffRes = (setData, setLoading, email) => {
+  const data = [];
+  console.log("reaching")
+  axios.get(API_URL + "staff/restaurants/"+email)
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
 const topPep = (setData, setLoading) => {
   const data = [];
   axios.get(API_URL + "users/top")
@@ -45,5 +56,6 @@ export {
   topRes,
   topPep,
   search,
-  myRev
+  myRev,
+  staffRes
 };

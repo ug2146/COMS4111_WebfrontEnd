@@ -12,7 +12,7 @@ function Login({setToken, setEmail, setTick}) {
 
     function logMeIn(event) {
       const token = login(loginForm.email, loginForm.password, loginForm.tick, setToken);
-      console.log("Token is: " + token);
+      //console.log("Token is: " + token);
       setloginForm(({
         email: "",
         password: "",
