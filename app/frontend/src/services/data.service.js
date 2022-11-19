@@ -1,13 +1,8 @@
 import axios from "axios";
 
-<<<<<<< HEAD
 const API_URL = "http://localhost:8111/api/reviews/";
 const STAFF_API = "http://localhost:8111/api/staff/";
 const RESTAURANT_API = "http://localhost:8111/api/restaurant/";
-=======
-const API_URL = "http://localhost:8111/api/";
-
->>>>>>> dev-uttam
 // async function deleteReview(reviewId) {
 //     console.log('reviewId', reviewId);
 //     const response = await fetch(API_URL + "delete", {

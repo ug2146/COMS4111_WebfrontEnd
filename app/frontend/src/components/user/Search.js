@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { addReview, addFavorite } from '../../services/data.service';
 import {Card, Button} from 'react-bootstrap';
+import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
+import UserRestaurants from './UserRestaurants';
 
 function Search({ restaurants, email }) {
-    const curRestaurant = "Hi";
     const [restaurantsList, setRestaurantsList] = useState([]);
 
     const [ambience, setAmbience] = useState("");
@@ -13,7 +14,7 @@ function Search({ restaurants, email }) {
     const [taste, setTaste] = useState("");
     const [cooked, setCooked] = useState("");
     const [writtenReview, setWrittenReview] = useState("");
-
+    const [curRestaurant, setCurRestaurant] = useState("");
     const [addfavorite, setaddFavorite] = useState("");
 
     const handleChange_ambience = (event) => {
@@ -55,6 +56,9 @@ function Search({ restaurants, email }) {
         console.log('value', event.target.value);
         setaddFavorite(event.target.value);
     };
+    const handleClick = (e) => {
+        setCurRestaurant(e.target.value)
+    };
 
     useEffect(() => {
         setRestaurantsList(restaurants);
@@ -78,7 +82,7 @@ function Search({ restaurants, email }) {
                             Average Rating: {restaurant.avg_rating}
                         </Card.Text>
                         <Link to = "restaurantPage">
-                            <Button value ={restaurant.license_no} onClick = {handleClick}>
+                            <Button value ={restaurant.licenseNo} onClick = {handleClick}>
                                 Go to restaurant
                             </Button>
                         </Link>

@@ -86,12 +86,10 @@ const search_res = (name, setData) => {
 export {
   topRes,
   topPep,
-  search,
   myRev,
   staffRes,
   resDishes,
   search_area,
   search_res,
-  myRev,
   myFav
 };
