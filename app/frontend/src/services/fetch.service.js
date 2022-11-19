@@ -25,7 +25,7 @@ const staffRes = (setData, setLoading, email) => {
 
 const resDishes = (setData, setLoading, licenseNos) => {
   const data = [];
-  console.log("reaching")
+  //console.log("reaching")
   console.log(licenseNos)
   axios.get(API_URL + "restaurant/dishes", { params: { licenseNo: licenseNos } })
   .then((response) => {

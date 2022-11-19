@@ -10,6 +10,7 @@ function TopPep() {
     const [reviewer, setReviewer] = useState("");
     const handleClick = (e) =>
     {
+        //console.log(people)
         setReviewer(e.target.value);
     }
     if(isLoading) {
@@ -28,7 +29,7 @@ function TopPep() {
                                     Number of Reviews : {person.numReviews}
                                 </Card.Text>
                                 <Link to="userReview">
-                                <Button value = {person} onClick= {handleClick}> 
+                                <Button value = {person.email_id} onClick= {handleClick}> 
                                     See Reviews
                                 </Button>
                                 </Link>
@@ -37,7 +38,6 @@ function TopPep() {
                     ))}
                   <Routes>
                   <Route exact path='userReview' element={< UserReviews email={reviewer}/>}></Route>
-                  <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>
             </div>
         );

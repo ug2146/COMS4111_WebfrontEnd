@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from "axios";
 import { resDishes } from "../../services/fetch.service";
-import { addDish } from '../../services/data.service';
+import { addDish, delDish } from '../../services/data.service';
 import { Container, Card, Col, Button } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
 function StaffRestaurant({restaurantName}) {
@@ -14,6 +14,10 @@ function StaffRestaurant({restaurantName}) {
     const [price, setPrice] = useState("");
     const [message, setMessage] = useState("");
 
+    const handleDel = async (e) => {
+        e.preventDefault();
+        await delDish(e.target.value);
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -77,6 +81,9 @@ function StaffRestaurant({restaurantName}) {
                                 Dish Category: {dish.dish_category} <br/>
                                 Dish Price: {dish.price} 
                             </Card.Text>
+                            <Button value = {dish.dish_id} onClick= {handleDel}>
+                                Delete Dish
+                            </Button>
                         </Card>
                     </div>
                 ))}

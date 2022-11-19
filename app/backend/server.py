@@ -164,11 +164,11 @@ def logout():
 def get_dishes():
   license_no = request.args.get('licenseNo')
   #print(restaurant_name)
-  cmd = f"SELECT dish_name, dish_category, price from Restaurants_Fetches NATURAL JOIN Adds NATURAL JOIN Dishes WHERE license_no = '{license_no}'"
+  cmd = f"SELECT dish_id, dish_name, dish_category, price from Restaurants_Fetches NATURAL JOIN Adds NATURAL JOIN Dishes WHERE license_no = '{license_no}'"
   cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
-    names.append({"dish_name" : result['dish_name'], "dish_category" : result['dish_category'], "price": result['price']})
+    names.append({"dish_name" : result['dish_name'], "dish_category" : result['dish_category'], "price": result['price'], "dish_id": result['dish_id']})
   
   cursor.close()
   return jsonify(names)
@@ -205,6 +205,15 @@ def add_dish():
   else:
     return jsonify("Invalid entries")
 
+@app.route('/api/staff/delDish', methods= ['POST'])
+@cross_origin()
+def delete_dish():
+  dish_id = request.json.get("dish_id", None)
+  cmd = "DELETE FROM Dishes WHERE dish_id = \"" + dish_id + "\""
+  cursor = g.conn.execute(cmd)
+  cmd = "DELETE FROM Adds WHERE dish_id = \"" + dish_id + "\""
+  cursor = g.conn.execute(cmd)
+  return jsonify("Dish Deleted successfully"), 200
 
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
@@ -352,11 +361,11 @@ def deleteOffers():
 @app.route('/api/users/top', methods=['GET'])
 @cross_origin()
 def top_users():
-  cmd = "SELECT username, COUNT(*) FROM customers c, rates r WHERE c.email_id= r.email_id GROUP BY c.email_id, username HAVING COUNT(*) > 1 ORDER BY COUNT(*) DESC Limit 10"
+  cmd = "SELECT c.email_id, username, COUNT(*) FROM customers c, rates r WHERE c.email_id= r.email_id GROUP BY c.email_id, username HAVING COUNT(*) > 1 ORDER BY COUNT(*) DESC Limit 10"
   cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
-    names.append({"userName" : result['username'], "numReviews" : result[1]})
+    names.append({"userName" : result['username'], "numReviews" : result[2], "email_id": result['email_id']})
   cursor.close()
   return jsonify(names)
 
@@ -586,6 +595,6 @@ if __name__ == "__main__":
   def run(debug, threaded, host, port):
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
   run()

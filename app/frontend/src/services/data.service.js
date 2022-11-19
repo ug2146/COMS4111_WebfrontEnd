@@ -85,6 +85,13 @@ const delFavorite = (email, restaurant_license, rem_value) => {
         });
 }
 
+const delDish = (dish_id) => {
+    console.log(dish_id)
+    return axios.post(STAFF_API + "delDish", {
+        dish_id
+    });
+};
+
 export {
     deleteReview,
     editReview,
@@ -92,5 +99,6 @@ export {
     addRestaurant,
     addDish,
     addFavorite,
-    delFavorite
+    delFavorite,
+    delDish
 };
