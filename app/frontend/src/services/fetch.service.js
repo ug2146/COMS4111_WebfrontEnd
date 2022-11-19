@@ -60,11 +60,58 @@ const search_res = (name, setData) => {
   })
 };
 
+const staffRes = (setData, setLoading, email) => {
+  const data = [];
+  console.log("reaching")
+  axios.get(API_URL + "staff/restaurants/"+email)
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
+const resDishes = (setData, setLoading, licenseNos) => {
+  const data = [];
+  console.log("reaching")
+  console.log(licenseNos)
+  axios.get(API_URL + "restaurant/dishes", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
+const search = (name, setData) => {
+  let restaurantName = name;
+  if (restaurantName === "") {restaurantName = "0"}
+  axios.get(API_URL + "restaurants/search/" + restaurantName)
+  .then((response) => {
+    setData(response.data);
+  })
+};
+
+const staffOffers = (setData, setLoading, email) => {
+  const data = [];
+  console.log("reaching")
+  axios.get(API_URL + "staff/restaurants/"+email)
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
 export {
   topRes,
   topPep,
   search_area,
   search_res,
   myRev,
-  myFav
+  myFav,
+  staffRes,
+  search,
+  resDishes,
+  staffOffers
 };

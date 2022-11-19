@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Login from './components/Login';
 import Register_customer from './components/Register_customer';
 import Register_staff from './components/Register_staff';
+import StaffView from './components/staff/StaffView';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
 import TopPep from './components/user/TopPep';
 import TopRes from './components/user/TopRes';
@@ -64,16 +65,16 @@ function App() {
         </li>
         </ul>
         <Routes>
-        <Route exact path='/topRes' element={< TopRes />}></Route>
-        <Route exact path='/topPep' element={< TopPep />}></Route>
-        <Route exact path='/search' element={< Search restaurants={restaurants} email={email} />}></Route>
-        <Route exact path='/myrev' element={< MyReviews email={email}/>}></Route>
-        <Route exact path='/myfav' element={< MyFavorites email={email}/>}></Route>
-      </Routes>
+        <Route exact path='/topRes/*' element={< TopRes />}></Route>
+        <Route exact path='/topPep/*' element={< TopPep />}></Route>
+        <Route exact path='/search/*' element={< Search restaurants={restaurants} email={email} />}></Route>
+        <Route exact path='/myrev/*' element={< MyReviews email={email}/>}></Route>
+        <Route exact path='/myfav/*' element={< MyFavorites email={email}/>}></Route>
+        </Routes>
         </div>
         :
-        <div>Hello Staff!
-
+        <div>
+          <StaffView email = {email}/>
         </div>
     }
     </div>

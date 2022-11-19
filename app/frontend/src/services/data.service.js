@@ -65,10 +65,32 @@ const delFavorite = (email, restaurant_license, rem_value) => {
         });
 }
 
+const addRestaurant = async (licenseNo, restaurant_name, customer_service_no, street_address, zipcode, email) => {
+    return axios.post(API_URL + "staff/addRestaurant", {
+        licenseNo,
+        restaurant_name,
+        customer_service_no,
+        street_address,
+        zipcode,
+        email
+        });
+    }
+
+const addDish = async (dish_name, dish_category, price, licenseNo) => {
+    return axios.post(API_URL + "restaurant/addDish", {
+        dish_name,
+        dish_category,
+        price,
+        licenseNo
+        });
+    }
+
 export {
     deleteReview,
     editReview,
     addReview,
     addFavorite,
-    delFavorite
+    delFavorite,
+    addRestaurant,
+    addDish
 };
