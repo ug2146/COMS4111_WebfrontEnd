@@ -209,9 +209,9 @@ def add_dish():
 @cross_origin()
 def delete_dish():
   dish_id = request.json.get("dish_id", None)
-  cmd = "DELETE FROM Dishes WHERE dish_id = \"" + dish_id + "\""
+  cmd = "DELETE FROM Dishes WHERE dish_id = \'" + dish_id + "\'"
   cursor = g.conn.execute(cmd)
-  cmd = "DELETE FROM Adds WHERE dish_id = \"" + dish_id + "\""
+  cmd = "DELETE FROM Adds WHERE dish_id = \'" + dish_id + "\'"
   cursor = g.conn.execute(cmd)
   return jsonify("Dish Deleted successfully"), 200
 
@@ -230,7 +230,7 @@ def get_offers():
   cursor.close()
   return jsonify(names)
 
-@app.route('/api/restaurant/rating', methods= ['GET'])
+@app.route('/api/restaurant/ratings', methods= ['GET'])
 @cross_origin()
 def get_rating():
   license_no = request.args.get('licenseNo')

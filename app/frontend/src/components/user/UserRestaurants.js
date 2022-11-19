@@ -51,12 +51,12 @@ function UserRestaurants({restaurantName}) {
                 {rest.map((res) => (
                     <div>
                         <Card style={{ width: '18rem' }}>
-                            <Card.Title>{rest.restaurant_name}</Card.Title>
+                            <Card.Title>{res.restaurant_name}</Card.Title>
                             <Card.Text>
-                                Customer Service Number: {rest.customer_service_no} <br/>
-                                Street Address: {rest.street_address}  <br/>
-                                Zipcode : {rest.zipcode} <br/>
-                                Area: {rest.area}
+                                Customer Service Number: {res.customer_service_no} <br/>
+                                Street Address: {res.street_address}  <br/>
+                                Zipcode : {res.zipcode} <br/>
+                                Area: {res.area}
                             </Card.Text>
                         </Card>
                     </div>

@@ -13,7 +13,9 @@ function TopRes() {
     const handleClick = (event) => {
         console.log("hitting")
         console.log(restaurants);
+        console.log(isClicked);
         setIsClicked(true);
+        console.log(isClicked);
         setCurRestaurant(event.target.value);
     };
     if(isLoading) {
