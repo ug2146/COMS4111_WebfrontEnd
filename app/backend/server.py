@@ -233,6 +233,19 @@ def get_dishes():
   cursor.close()
   return jsonify(names)
 
+@app.route('/api/restaurant/details', methods= ['GET'])
+@cross_origin()
+def get_dishes():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT restaurant_name,customer_service_no,street_address,zipcode,area from Restaurants_Fetches where license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"restaurant_name" : result['restaurant_name'], "customer_service_no" : result['customer_service_no'], "street_address": result['street_address'], "zipcode": result['zipcode'],"area": result['area']})
+  
+  cursor.close()
+  return jsonify(names)
 
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
@@ -516,6 +529,7 @@ def addReview():
       return jsonify("Added a new rating successfully")
     else:
       return jsonify("Invalid entries")
+
 
 @app.route('/api/reviews/delete', methods=['DELETE', 'OPTIONS'])
 @cross_origin()

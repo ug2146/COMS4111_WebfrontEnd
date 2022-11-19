@@ -3,6 +3,7 @@ import axios from "axios";
 import { resDishes } from "../../services/fetch.service";
 import { resOffers } from "../../services/fetch.service";
 import { resRatings } from "../../services/fetch.service";
+import { resdetails } from "../../services/fetch.service";
 import { addDish } from '../../services/data.service';
 import { Container, Card, Col, Button } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
@@ -14,8 +15,10 @@ function UserRestaurants({restaurantName}) {
     const [dishes, setDishes] = useState();
     const [offers, setOffers] = useState();
     const [ratings, setRatings] = useState();
+    const [rest, setres] = useState();
 
     if(isLoading) {
+        resdetails(setres, setLoading, licenseNo);
         resDishes(setDishes, setLoading, licenseNo);
         resOffers(setOffers, setLoading, licenseNo);
         resRatings(setRatings, setLoading,licenseNo);
@@ -25,6 +28,21 @@ function UserRestaurants({restaurantName}) {
     {
         return (
             <div className = "dList">
+                <div>
+                {rest.map((res) => (
+                    <div>
+                        <Card style={{ width: '18rem' }}>
+                            <Card.Title>{rest.restaurant_name}</Card.Title>
+                            <Card.Text>
+                                Customer Service Number: {rest.customer_service_no} <br/>
+                                Street Address: {rest.street_address}  <br/>
+                                Zipcode : {rest.zipcode} <br/>
+                                Area: {rest.area}
+                            </Card.Text>
+                        </Card>
+                    </div>
+                ))}
+                </div>
                 <div>
                 {dishes.map((dish) => (
                     <div>

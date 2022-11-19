@@ -23,6 +23,18 @@ const staffRes = (setData, setLoading, email) => {
   return data;
 };
 
+const resdetails = (setData, setLoading, licenseNos) => {
+  const data = [];
+  console.log("reaching")
+  console.log(licenseNos)
+  axios.get(API_URL + "restaurant/details", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
 const resDishes = (setData, setLoading, licenseNos) => {
   const data = [];
   console.log("reaching")
