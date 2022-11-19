@@ -70,13 +70,6 @@ const addDish = async (dish_name, dish_category, price, licenseNo) => {
         });
     }
 
-const delDish = (dish_id) => {
-    console.log(dish_id)
-    return axios.post(STAFF_API + "delDish", {
-        dish_id
-    });
-};
-
 const addOffer = async (license_no, percentage_discount, offer_description, valid_till) => {
     return axios.post(STAFF_API + "provideOffers", {
         license_no,
@@ -109,7 +102,12 @@ const delFavorite = (email, restaurant_license, rem_value) => {
         });
 }
 
-
+const delDish = (dish_id) => {
+    console.log(dish_id)
+    return axios.post(STAFF_API + "delDish", {
+        dish_id
+    });
+};
 
 export {
     deleteReview,

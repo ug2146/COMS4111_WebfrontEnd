@@ -51,7 +51,7 @@ function App() {
           <Link to="/topRes">Find top Restaurants!</Link>
         </li>
         <li>
-          <Link to="/topPep">See top Reviewers!</Link>
+          <Link to="/topPep/*">See top Reviewers!</Link>
         </li>
         <li>
           <Link to="/myrev">My reviews</Link>

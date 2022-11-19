@@ -23,11 +23,35 @@ const staffRes = (setData, setLoading, email) => {
   return data;
 };
 
-const resDishes = (setData, setLoading, licenseNos) => {
+const resdetails = (setData, setLoading, licenseNos) => {
   const data = [];
   console.log("reaching")
   console.log(licenseNos)
+  axios.get(API_URL + "restaurant/details", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
+const resDishes = (setData, setLoading, licenseNos) => {
+  const data = [];
+  //console.log("reaching")
+  console.log(licenseNos)
   axios.get(API_URL + "restaurant/dishes", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
+const staffOffers = (setData, setLoading, licenseNos) => {
+  const data = [];
+  console.log("reaching")
+  console.log(licenseNos)
+  axios.get(API_URL + "staff/viewOffers", { params: { licenseNo: licenseNos } })
   .then((response) => {
     setData(response.data);
     setLoading(false);
@@ -39,7 +63,19 @@ const resOffers = (setData, setLoading, licenseNos) => {
   const data = [];
   console.log("reaching")
   console.log(licenseNos)
-  axios.get(API_URL + "staff/viewOffers", { params: { licenseNo: licenseNos } })
+  axios.get(API_URL + "restaurant/offers", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
+const resRatings = (setData, setLoading, licenseNos) => {
+  const data = [];
+  console.log("reaching")
+  console.log(licenseNos)
+  axios.get(API_URL + "restaurant/ratings", { params: { licenseNo: licenseNos } })
   .then((response) => {
     setData(response.data);
     setLoading(false);
@@ -100,9 +136,12 @@ export {
   topPep,
   myRev,
   staffRes,
+  staffOffers,
   resDishes,
+  resRatings,
   resOffers,
   search_area,
   search_res,
-  myFav
+  myFav,
+  resdetails
 };

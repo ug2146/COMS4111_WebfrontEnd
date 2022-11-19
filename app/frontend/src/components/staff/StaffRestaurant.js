@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from "axios";
-import { resDishes, resOffers } from "../../services/fetch.service";
+import { resDishes, resOffers, staffOffers } from "../../services/fetch.service";
 import { addDish, delDish, addOffer, delOffer } from '../../services/data.service';
 import { Container, Card, Col, Button } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
@@ -68,7 +68,7 @@ function StaffRestaurant({restaurantName}) {
     
     if(isLoading || isLoading2) {
         resDishes(setDishes, setLoading, licenseNo);
-        resOffers(setOffers, setLoading2, licenseNo);
+        staffOffers(setOffers, setLoading2, licenseNo);
         return <div>Loading...</div>
     }
     else
