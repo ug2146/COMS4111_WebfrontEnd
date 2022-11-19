@@ -7,12 +7,6 @@ import { editReview, deleteReview } from "../../services/data.service";
 function UserReviews({email}) {
     const [isLoading, setLoading] = useState(true);
     const [reviews, setReviews] = useState([]);
-    const [writtenReview, setWrittenReview] = useState("");
-
-    const handleChange = (event) => {
-        console.log('value', event.target.value);
-        setWrittenReview(event.target.value);
-    };
 
     if (isLoading) {
         console.log('email', email);

@@ -9,9 +9,11 @@ function TopRes() {
     const [isLoading, setLoading] = useState(true);
     const [restaurants, setRestaurants] = useState();
     const [curRestaurant, setCurRestaurant] = useState("");
+    const [isClicked, setIsClicked] = useState(false)
     const handleClick = (event) => {
         console.log("hitting")
-        console.log(restaurants)
+        console.log(restaurants);
+        setIsClicked(true);
         setCurRestaurant(event.target.value);
     };
     if(isLoading) {
@@ -22,7 +24,6 @@ function TopRes() {
     {
         return (
             <div className = "rlist">
-               
                     {restaurants.map((restaurant) => (
                         <div>
                             <Card style={{ width: '18rem' }}>
