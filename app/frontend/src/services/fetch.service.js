@@ -129,5 +129,6 @@ export {
   resRatings,
   search_area,
   search_res,
-  myFav
+  myFav,
+  resdetails
 };

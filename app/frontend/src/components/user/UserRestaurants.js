@@ -11,21 +11,40 @@ import { BrowserRouter, Route, Routes,Link } from 'react-router-dom'
 function UserRestaurants({restaurantName}) {
     console.log(restaurantName);
     const licenseNo = restaurantName
-    const [isLoading, setLoading] = useState(true);
-    const [dishes, setDishes] = useState();
-    const [offers, setOffers] = useState();
-    const [ratings, setRatings] = useState();
-    const [rest, setres] = useState();
+    const [isLoading1, setLoading1] = useState(true);
+    const [isLoading2, setLoading2] = useState(true);
+    const [isLoading3, setLoading3] = useState(true);
+    const [isLoading4, setLoading4] = useState(true);
+    const [dishes, setDishes] = useState([]);
+    const [offers, setOffers] = useState([]);
+    const [ratings, setRatings] = useState([]);
+    const [rest, setres] = useState([]);
 
-    if(isLoading) {
-        resdetails(setres, setLoading, licenseNo);
-        resDishes(setDishes, setLoading, licenseNo);
-        resOffers(setOffers, setLoading, licenseNo);
-        resRatings(setRatings, setLoading,licenseNo);
+    if(isLoading1) {
+        resdetails(setres, setLoading1, licenseNo);
         return <div>Loading...</div>
+    }
+    else if(isLoading2)
+    {
+        resDishes(setDishes, setLoading2, licenseNo);
+        return <div>Loading2..</div>
+    }
+    else if(isLoading3)
+    {
+        resOffers(setOffers, setLoading3, licenseNo);
+        return <div>Loading3..</div>
+    }
+    else if(isLoading4)
+    {
+        resRatings(setRatings, setLoading4,licenseNo);
+        return <div> Loading4</div>
     }
     else
     {
+        console.log('resdetais', rest)
+        console.log('resDishes', dishes)
+        console.log('offers', offers)
+        console.log('ratings', ratings)
         return (
             <div className = "dList">
                 <div>

@@ -246,7 +246,7 @@ def get_rating():
 
 @app.route('/api/restaurant/details', methods= ['GET'])
 @cross_origin()
-def get_dishes():
+def get_details():
   license_no = request.args.get('licenseNo')
   #print(restaurant_name)
   cmd = f"SELECT restaurant_name,customer_service_no,street_address,zipcode,area from Restaurants_Fetches where license_no = '{license_no}'"
