@@ -205,6 +205,7 @@ def add_dish():
   else:
     return jsonify("Invalid entries")
 
+<<<<<<< HEAD
 @app.route('/api/staff/delDish', methods= ['POST'])
 @cross_origin()
 def delete_dish():
@@ -214,6 +215,36 @@ def delete_dish():
   cmd = "DELETE FROM Adds WHERE dish_id = \"" + dish_id + "\""
   cursor = g.conn.execute(cmd)
   return jsonify("Dish Deleted successfully"), 200
+=======
+@app.route('/api/restaurant/offers', methods= ['GET'])
+@cross_origin()
+def get_dishes():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT percentage_discount, valid_till, offer_description from Provides p,Offers o where p.offer_id = o.offer_id AND p.license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"percentage_discount" : result['percentage_discount'], "valid_till" : result['valid_till'], "offer_description": result['offer_description']})
+  
+  cursor.close()
+  return jsonify(names)
+
+@app.route('/api/restaurant/rating', methods= ['GET'])
+@cross_origin()
+def get_dishes():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT username, ambience, crowd,customer_service, value_for_money, taste, cooked,overall_written_review from Ratings r1, rates r2, customers c where r1.rating_id = r2.rating_id AND r2.email_id = c.email_id AND r2.license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"username" : result['username'], "ambience" : result['ambience'], "crowd": result['crowd'], "customer_service": result['customer_service'],"value_for_money": result['value_for_money'],"taste": result['taste'],"cooked": result['cooked'], "overall_written_review": result['overall_written_review']})
+  
+  cursor.close()
+  return jsonify(names)
+
+>>>>>>> c8bc9025e53b4620f2f43f119b32b1d00964fd46
 
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
