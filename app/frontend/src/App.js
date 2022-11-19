@@ -57,7 +57,7 @@ function App() {
         <Routes>
         <Route exact path='/topRes/*' element={< TopRes />}></Route>
         <Route exact path='/topPep/*' element={< TopPep />}></Route>
-        <Route exact path='/search' element={< Search restaurants={restaurants} email={email} />}></Route>
+        <Route exact path='/search/*' element={< Search restaurants={restaurants} email={email} />}></Route>
         <Route exact path='/myrev' element={< MyReviews email={email}/>}></Route>  
       </Routes>
         </div>
