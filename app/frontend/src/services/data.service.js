@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8111/api/reviews/";
+const API_URL = "http://localhost:8111/api/";
 const STAFF_API = "http://localhost:8111/api/staff/";
 const RESTAURANT_API = "http://localhost:8111/api/restaurant/";
 // async function deleteReview(reviewId) {
