@@ -44,7 +44,8 @@ function UserRestaurants({restaurantName}) {
                         <Card style={{ width: '18rem' }}>
                             <Card.Title>{offer.percentage_discount}</Card.Title>
                             <Card.Text>
-                                Offer Description: {dish.offer_description} <br/>
+                                Valid Till: {offer.valid_till} <br/>
+                                Offer Description: {offer.offer_description}
                             </Card.Text>
                         </Card>
                     </div>
