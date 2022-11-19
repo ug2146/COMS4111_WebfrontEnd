@@ -205,7 +205,6 @@ def add_dish():
   else:
     return jsonify("Invalid entries")
 
-<<<<<<< HEAD
 @app.route('/api/staff/delDish', methods= ['POST'])
 @cross_origin()
 def delete_dish():
@@ -215,7 +214,6 @@ def delete_dish():
   cmd = "DELETE FROM Adds WHERE dish_id = \"" + dish_id + "\""
   cursor = g.conn.execute(cmd)
   return jsonify("Dish Deleted successfully"), 200
-=======
 @app.route('/api/restaurant/offers', methods= ['GET'])
 @cross_origin()
 def get_dishes():
@@ -244,7 +242,6 @@ def get_dishes():
   cursor.close()
   return jsonify(names)
 
->>>>>>> c8bc9025e53b4620f2f43f119b32b1d00964fd46
 
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
