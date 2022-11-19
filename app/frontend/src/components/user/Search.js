@@ -16,6 +16,7 @@ function Search({ restaurants, email }) {
     const [writtenReview, setWrittenReview] = useState("");
     const [curRestaurant, setCurRestaurant] = useState("");
     const [addfavorite, setaddFavorite] = useState("");
+    const [isClicked, setIsClicked] = useState(false);
 
     const handleChange_ambience = (event) => {
         console.log('value', event.target.value);
@@ -57,6 +58,7 @@ function Search({ restaurants, email }) {
         setaddFavorite(event.target.value);
     };
     const handleClick = (e) => {
+        setIsClicked(true)
         setCurRestaurant(e.target.value)
     };
 
@@ -74,7 +76,8 @@ function Search({ restaurants, email }) {
 
     return (
         <div className = "rlist">
-            {restaurantsList && (restaurantsList.map((restaurant) => (
+            { isClicked === true ? <div>{curRestaurant}</div> :
+            restaurantsList && (restaurantsList.map((restaurant) => (
                 <div>
                     <Card style={{ width: '18rem' }}>
                         <Card.Title>{restaurant.restaurantName}</Card.Title>

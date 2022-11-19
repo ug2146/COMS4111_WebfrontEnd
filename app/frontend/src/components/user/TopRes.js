@@ -26,7 +26,8 @@ function TopRes() {
     {
         return (
             <div className = "rlist">
-                    {restaurants.map((restaurant) => (
+                    {isClicked===true ? <div>{curRestaurant}</div>:
+                    restaurants.map((restaurant) => (
                         <div>
                             <Card style={{ width: '18rem' }}>
                                 <Card.Title>{restaurant.restaurantName}</Card.Title>

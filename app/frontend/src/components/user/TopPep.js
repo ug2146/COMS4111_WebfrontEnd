@@ -8,9 +8,11 @@ function TopPep() {
     const [isLoading, setLoading] = useState(true);
     const [people, setPeople] = useState();
     const [reviewer, setReviewer] = useState("");
+    const [isClicked, setIsClicked] = useState(false)
     const handleClick = (e) =>
     {
         //console.log(people)
+        setIsClicked(true);
         setReviewer(e.target.value);
     }
     if(isLoading) {
@@ -21,7 +23,8 @@ function TopPep() {
     {
         return (
             <div className = "rlist">
-                    {people.map((person) => (
+                    { isClicked === true ? <div> {reviewer}</div>:
+                    people.map((person) => (
                         <div>
                             <Card style={{ width: '18rem' }}>
                                 <Card.Title>{person.userName}</Card.Title>
