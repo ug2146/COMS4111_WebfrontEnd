@@ -215,10 +215,10 @@ def delete_dish():
   cursor = g.conn.execute(cmd)
   return jsonify("Dish Deleted successfully"), 200
 
-  
+
 @app.route('/api/restaurant/offers', methods= ['GET'])
 @cross_origin()
-def get_dishes():
+def get_offers():
   license_no = request.args.get('licenseNo')
   #print(restaurant_name)
   cmd = f"SELECT percentage_discount, valid_till, offer_description from Provides p,Offers o where p.offer_id = o.offer_id AND p.license_no = '{license_no}'"
@@ -232,7 +232,7 @@ def get_dishes():
 
 @app.route('/api/restaurant/rating', methods= ['GET'])
 @cross_origin()
-def get_dishes():
+def get_rating():
   license_no = request.args.get('licenseNo')
   #print(restaurant_name)
   cmd = f"SELECT username, ambience, crowd,customer_service, value_for_money, taste, cooked,overall_written_review from Ratings r1, rates r2, customers c where r1.rating_id = r2.rating_id AND r2.email_id = c.email_id AND r2.license_no = '{license_no}'"
