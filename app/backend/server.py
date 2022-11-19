@@ -214,6 +214,8 @@ def delete_dish():
   cmd = "DELETE FROM Adds WHERE dish_id = \"" + dish_id + "\""
   cursor = g.conn.execute(cmd)
   return jsonify("Dish Deleted successfully"), 200
+
+  
 @app.route('/api/restaurant/offers', methods= ['GET'])
 @cross_origin()
 def get_dishes():
