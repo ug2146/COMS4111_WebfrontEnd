@@ -205,6 +205,58 @@ def add_dish():
   else:
     return jsonify("Invalid entries")
 
+@app.route('/api/staff/delDish', methods= ['POST'])
+@cross_origin()
+def delete_dish():
+  dish_id = request.json.get("dish_id", None)
+  cmd = "DELETE FROM Dishes WHERE dish_id = \'" + dish_id + "\'"
+  cursor = g.conn.execute(cmd)
+  cmd = "DELETE FROM Adds WHERE dish_id = \'" + dish_id + "\'"
+  cursor = g.conn.execute(cmd)
+  cursor.close()
+  return jsonify("Dish Deleted successfully"), 200
+
+@app.route('/api/restaurant/offers', methods= ['GET'])
+@cross_origin()
+def get_offers():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT percentage_discount, valid_till, offer_description from Provides p,Offers o where p.offer_id = o.offer_id AND p.license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"percentage_discount" : result['percentage_discount'], "valid_till" : result['valid_till'], "offer_description": result['offer_description']})
+  
+  cursor.close()
+  return jsonify(names)
+
+@app.route('/api/restaurant/rating', methods= ['GET'])
+@cross_origin()
+def get_rating():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT username, ambience, crowd,customer_service, value_for_money, taste, cooked,overall_written_review from Ratings r1, rates r2, customers c where r1.rating_id = r2.rating_id AND r2.email_id = c.email_id AND r2.license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"username" : result['username'], "ambience" : result['ambience'], "crowd": result['crowd'], "customer_service": result['customer_service'],"value_for_money": result['value_for_money'],"taste": result['taste'],"cooked": result['cooked'], "overall_written_review": result['overall_written_review']})
+  
+  cursor.close()
+  return jsonify(names)
+
+@app.route('/api/restaurant/details', methods= ['GET'])
+@cross_origin()
+def get_details():
+  license_no = request.args.get('licenseNo')
+  #print(restaurant_name)
+  cmd = f"SELECT restaurant_name,customer_service_no,street_address,zipcode,area from Restaurants_Fetches where license_no = '{license_no}'"
+  cursor = g.conn.execute(cmd)
+  names = []
+  for result in cursor:
+    names.append({"restaurant_name" : result['restaurant_name'], "customer_service_no" : result['customer_service_no'], "street_address": result['street_address'], "zipcode": result['zipcode'],"area": result['area']})
+  
+  cursor.close()
+  return jsonify(names)
 
 @app.route('/api/restaurants/top', methods=['GET'])
 @cross_origin()
@@ -272,7 +324,7 @@ def addRestaurants():
 @app.route('/api/staff/provideOffers', methods=['POST'])
 @cross_origin()
 def provideOffers():
-  percentage_discount = request.json.get("precentage_discount", None)
+  percentage_discount = request.json.get("percentage_discount", None)
   offer_description = request.json.get("offer_description", None)
 
   license_no = request.json.get("license_no", None)
@@ -286,17 +338,14 @@ def provideOffers():
     new_offer_id = str(offer_count + 1).zfill(5)
   
   cursor.close()
-  cmd = f"INSERT INTO Offers(offer_id, percentage_discount, offer_description) VALUES('{new_offer_id}', '{round(float(percentage_discount), 2)}','{offer_description}')"
-  errflag = 0
+  valerr = 0
   try:
-    cursor = g.conn.execute(cmd)
-  except Exception as err:
-    print("###### " + str(err.orig) + " for parameters" + str(err.params))
-    errflag = 1
+    floatpercent_discount = round(float(percentage_discount), 2)
+  except Exception as verr:
+    valerr = 1
   
-  if not errflag:
-    cursor.close()
-    cmd = f"INSERT INTO Provides (license_no, offer_id, valid_till) VALUES ('{license_no}','{new_offer_id}', '{valid_till}')"
+  if not valerr:
+    cmd = f"INSERT INTO Offers(offer_id, percentage_discount, offer_description) VALUES('{new_offer_id}', '{floatpercent_discount}','{offer_description}')"
     errflag = 0
     try:
       cursor = g.conn.execute(cmd)
@@ -304,25 +353,38 @@ def provideOffers():
       print("###### " + str(err.orig) + " for parameters" + str(err.params))
       errflag = 1
     
-    if errflag:
-      cmd = f"DELETE FROM Offers WHERE offer_id = '{new_offer_id}'"
-      cursor = g.conn.execute(cmd)
+    if not errflag:
       cursor.close()
+      cmd = f"INSERT INTO Provides (license_no, offer_id, valid_till) VALUES ('{license_no}','{new_offer_id}', '{valid_till}')"
+      errflag = 0
+      try:
+        cursor = g.conn.execute(cmd)
+      except Exception as err:
+        print("###### " + str(err.orig) + " for parameters" + str(err.params))
+        errflag = 1
+      
+      if errflag:
+        cmd = f"DELETE FROM Offers WHERE offer_id = '{new_offer_id}'"
+        cursor = g.conn.execute(cmd)
+        cursor.close()
+        return jsonify("Invalid entries")
+      else: 
+        return jsonify("Offer provided successfully"), 200
+    else:
       return jsonify("Invalid entries")
-    else: 
-      return jsonify("Offer provided successfully"), 200
   else:
     return jsonify("Invalid entries")
 
 @app.route('/api/staff/viewOffers', methods=['GET'])
 @cross_origin()
 def viewOffers():
-  license_no = request.json.get("license_no", None)
-  cmd = f"SELECT O.*, P.valid_till FROM Offers O, Provides P WHERE O.offer_id = P.offer_id AND P.license_no = '{license_no}'"
+  license_no = request.args.get('licenseNo')
+  cmd = f"SELECT O.*, P.valid_till::timestamp::date FROM Offers O, Provides P WHERE O.offer_id = P.offer_id AND P.license_no = '{license_no}' ORDER BY P.valid_till"
   cursor = g.conn.execute(cmd)
   names = []
   for result in cursor:
-    names.append({"offerId" : result[0], "percentageDiscount" : result[1], "offerDescription" : result[2], "validTill" : result[3]})
+    print(result[3])
+    names.append({"offerId" : result[0], "percentageDiscount" : result[1], "offerDescription" : result[2], "validTill" : str(result[3])})
   
   cursor.close()
   return jsonify(names)
@@ -331,7 +393,6 @@ def viewOffers():
 @cross_origin()
 def deleteOffers():
   #Delete a particular offer
-  rem_value = request.json.get("rem_value", None)
   offerId = request.json.get("offerId", None)
 
   cmd = f"SELECT COUNT(*) FROM Offers WHERE offer_id = '{offerId}'"
@@ -342,7 +403,7 @@ def deleteOffers():
   
   cursor.close()
   
-  if int(existing_count) == 1 and (rem_value == 'Y' or rem_value == 'y'):
+  if int(existing_count) == 1:
     cmd = f"DELETE FROM Offers WHERE offer_id = '{offerId}'"
     cursor = g.conn.execute(cmd)
     cursor.close()

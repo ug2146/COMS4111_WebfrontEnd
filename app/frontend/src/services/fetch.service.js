@@ -35,6 +35,18 @@ const resDishes = (setData, setLoading, licenseNos) => {
   return data;
 };
 
+const resOffers = (setData, setLoading, licenseNos) => {
+  const data = [];
+  console.log("reaching")
+  console.log(licenseNos)
+  axios.get(API_URL + "staff/viewOffers", { params: { licenseNo: licenseNos } })
+  .then((response) => {
+    setData(response.data);
+    setLoading(false);
+  })
+  return data;
+};
+
 const topPep = (setData, setLoading) => {
   const data = [];
   axios.get(API_URL + "users/top")
@@ -89,6 +101,7 @@ export {
   myRev,
   staffRes,
   resDishes,
+  resOffers,
   search_area,
   search_res,
   myFav
